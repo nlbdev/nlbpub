@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<x:description xmlns:x="http://www.jenitennison.com/xslt/xspec"
+               xmlns:sch="http://purl.oclc.org/dsdl/schematron"
+               xmlns="http://www.w3.org/1999/xhtml"
+               stylesheet="sch-to-html.xsl">
+    
+    <x:scenario label="Basic pattern">
+        <x:context>
+            <sch:pattern id="epub_nordic_8">
+                <sch:p class="title">Pagebreaks</sch:p>
+                <sch:p>Description for pagebreaks</sch:p>
+                
+                <sch:rule context="html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-front']">
+                    <sch:assert test="ancestor::html:*[self::html:section or self::html:article or self::html:body]/tokenize(@epub:type,'\s+') = ('frontmatter','cover')">[nordic08] &lt;span epub:type="pagebreak"
+                        class="page-front"/&gt; may only occur in frontmatter and cover. <value-of
+                            select="concat('&lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&quot;',$a,'&quot;'),''),'&gt;')"/></sch:assert>
+                </sch:rule>
+            </sch:pattern>
+        </x:context>
+
+        <x:expect label="should render as expected">
+            <section>
+                <h2>Pagebreaks</h2>
+                <p>Description for pagebreaks</p>
+                <p><a class="btn btn-secondary btn-sm" data-toggle="collapse" href="#code_epub_nordic_8_1" role="button" aria-expanded="false" aria-controls="code_epub_nordic_8_1">Show/hide code for <code>html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-front']</code></a></p>
+<pre id="code_epub_nordic_8_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;sch:rule context="html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-front']"&gt;
+  &lt;sch:assert test="ancestor::html:*[self::html:section or self::html:article or self::html:body]/tokenize(@epub:type,'\s+') = ('frontmatter','cover')"&gt;
+    [nordic08] &amp;lt;span epub:type="pagebreak" class="page-front"/&amp;gt; may only occur in frontmatter and cover.
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/sch:assert&gt;
+&lt;/sch:rule&gt;</code></pre>
+                <hr/>
+            </section>
+        </x:expect>
+    </x:scenario>
+    
+</x:description>

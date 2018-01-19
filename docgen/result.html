@@ -1,0 +1,2127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+      <title>NLBPUB (én HTML5-fil i en unzippet EPUB3)</title>
+      <link rel="stylesheet"
+            href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+            integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+            crossorigin="anonymous"/>
+      <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"
+            integrity="sha256-Zd1icfZ72UBmsId/mUcagrmN7IN5Qkrvh75ICHIQVTk="
+            crossorigin="anonymous"/>
+   </head>
+   <body class="container">
+      <h1>NLBPUB (én HTML5-fil i en unzippet EPUB3)</h1>
+      <section>
+         <h2>Rule 7: No &lt;ul&gt;, &lt;ol&gt; or &lt;dl&gt; inside &lt;p&gt;</h2>
+         <p>Lists are not allowed inside paragraphs.</p>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_7_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_7_1">Show/hide code for <code>html:p</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_7_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:p"&gt;
+  
+  &lt;report test="html:ul | html:ol"&gt;
+    [nordic07] Lists (
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    ) are not allowed inside paragraphs.
+  &lt;/report&gt;
+  
+  &lt;report test="html:dl"&gt;
+    [nordic07] Definition lists (
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    ) are not allowed inside paragraphs.
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>Rule 8: Page break with class="page-front" is only allowed to occur in frontmatter</h2>
+         <p>Pagebreaks with class="page-frot" may only occur in frontmatter and cover.</p>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_8_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_8_1">Show/hide code for <code>html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-front']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_8_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-front']"&gt;
+  
+  &lt;assert test="ancestor::html:*[self::html:section or self::html:article or self::html:body]/tokenize(@epub:type,'\s+') = ('frontmatter','cover')"&gt;
+    [nordic08] &amp;lt;span epub:type="pagebreak" class="page-front"/&amp;gt; may only occur in frontmatter and cover.
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>Rule 9: Disallow empty elements (with a few exceptions)</h2>
+         <p>The only elements that can be empty are the elements img, br, meta, link, col, th, td, dd, hr, script, and also any element with the epub:type "pagebreak".</p>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_9_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_9_1">Show/hide code for <code>html:*</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_9_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*"&gt;
+  
+  &lt;report test="normalize-space(.)='' and not(*) and not(self::html:img or self::html:br or self::html:meta or self::html:link or self::html:col or self::html:th or self::html:td or self::html:dd or self::html:*[tokenize(@epub:type,'\s+')='pagebreak'] or self::html:hr or self::html:script)"&gt;
+    [nordic09] Element may not be empty:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_10</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_10_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_10_1">Show/hide code for <code>html:head[following-sibling::html:body/html:header]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_10_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:head[following-sibling::html:body/html:header]"&gt;
+  No rule:<!-- dc:language -->
+  
+  &lt;assert test="count(html:meta[@name='dc:language'])&amp;gt;=1"&gt;
+    [nordic10] Meta dc:language must occur at least once in HTML head
+  &lt;/assert&gt;
+  No rule:<!-- dc:date -->
+  
+  &lt;assert test="count(html:meta[@name='dc:date'])=1"&gt;
+    [nordic10] Meta dc:date=YYYY-MM-DD must occur exactly once in HTML head
+  &lt;/assert&gt;
+  
+  &lt;report test="html:meta[@name='dc:date' and translate(@content, '0123456789', '0000000000')!='0000-00-00']"&gt;
+    [nordic10] Meta dc:date ("
+    &lt;value-of select="@content"/&gt;
+    ") must have format YYYY-MM-DD
+  &lt;/report&gt;
+  No rule:<!-- dc:publisher -->
+  
+  &lt;assert test="count(html:meta[@name='dc:publisher'])=1"&gt;
+    [nordic10] Meta dc:publisher must occur exactly once
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_11</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_11_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_11_1">Show/hide code for <code>html:html</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_11_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:html"&gt;
+  
+  &lt;assert test="@xml:lang"&gt;
+    [nordic11] &amp;lt;html&amp;gt; element must have an xml:lang attribute
+  &lt;/assert&gt;
+  
+  &lt;assert test="@lang"&gt;
+    [nordic11] &amp;lt;html&amp;gt; element must have a lang attribute
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_12</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_12_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_12_1">Show/hide code for <code>html:body/html:header</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_12_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:body/html:header"&gt;
+  
+  &lt;assert test="html:*[1][self::html:h1[tokenize(@epub:type,' ')='fulltitle']]"&gt;
+    [nordic12] Single-HTML document must begin with a fulltitle headline in its header element (xpath: /html/body/header/h1).
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_13_b</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_13_b_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_13_b_1">Show/hide code for <code>html:*[self::html:section or self::html:article][ancestor::html:body[html:header] and not(parent::html:body) and not(parent::html:section[tokenize(@epub:type,'\s+')='part'])]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_13_b_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[self::html:section or self::html:article][ancestor::html:body[html:header] and not(parent::html:body) and not(parent::html:section[tokenize(@epub:type,'\s+')='part'])]"&gt;
+  
+  &lt;assert test="not((tokenize(@epub:type,'\s+')=('cover','frontmatter','bodymatter','backmatter')) = true())"&gt;
+    [nordic13b] The single-HTML document must not have cover, frontmatter, bodymatter or backmatter on any of its sectioning elements other than the top-level elements that has body as its parent
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_14</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_14_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_14_1">Show/hide code for <code>html:*[self::html:section or self::html:article][not(tokenize(@epub:type,'\s+')='cover')][html:section[not(tokenize(@epub:type,'\t+')=('z3998:poem','z3998:verse'))]|html:article]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_14_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[self::html:section or self::html:article][not(tokenize(@epub:type,'\s+')='cover')][html:section[not(tokenize(@epub:type,'\t+')=('z3998:poem','z3998:verse'))]|html:article]"&gt;
+  
+  &lt;assert test="html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6"&gt;
+    [nordic14] sectioning element with no headline (h1-h6) when sub-section is present (is only allowed for sectioning element with epub:type="cover" or when sub-section is a poem):
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_15</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_15_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_15_1">Show/hide code for <code>html:body[html:header]/html:*[self::html:section or self::html:article]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_15_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:body[html:header]/html:*[self::html:section or self::html:article]"&gt;
+  
+  &lt;report test="tokenize(@epub:type,'\s+')[.='cover'] and preceding-sibling::html:*[self::html:section or self::html:article]"&gt;
+    [nordic15] Cover must not be preceded by any other top-level sections other than those with epub:type="frontmatter imprimatur" or epub:type="frontmatter imprint" (
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    )
+  &lt;/report&gt;
+  
+  &lt;report test="tokenize(@epub:type,'\s+')[.='frontmatter'] and preceding-sibling::html:*[self::html:section or self::html:article]/tokenize(@epub:type,'\s') = ('bodymatter', 'backmatter')"&gt;
+    [nordic15] Frontmatter must not be preceded by bodymatter or rearmatter (
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    )
+  &lt;/report&gt;
+  
+  &lt;report test="tokenize(@epub:type,'\s+')[.='frontmatter'] and preceding-sibling::html:*[self::html:section or self::html:article]/tokenize(@epub:type,'\s') = ('backmatter')"&gt;
+    [nordic15] Bodymatter must not be preceded by backmatter (
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    )
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_20</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_20_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_20_1">Show/hide code for <code>html:figure</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_20_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:figure"&gt;
+  
+  &lt;report test="ancestor::html:a        or ancestor::html:abbr    or ancestor::html:a[tokenize(@epub:type,' ')='annoref']   or                           ancestor::html:bdo      or ancestor::html:code       or ancestor::html:dfn        or ancestor::html:em        or                           ancestor::html:kbd      or ancestor::html:p[tokenize(@class,' ')='linenum']    or ancestor::html:a[tokenize(@epub:type,' ')='noteref']    or ancestor::html:span[tokenize(@class,' ')='lic']       or                           ancestor::html:q        or ancestor::html:samp       or ancestor::html:span[tokenize(@epub:type,' ')='z3998:sentence']       or ancestor::html:span      or                           ancestor::html:strong   or ancestor::html:sub        or ancestor::html:sup        or ancestor::html:span[tokenize(@epub:type,' ')='z3998:word']         or                           ancestor::html:address  or ancestor::html:*[tokenize(@epub:type,' ')='z3998:author' and not(parent::html:header[parent::html:body])]     or ancestor::html:p[tokenize(@epub:type,' ')='bridgehead'] or ancestor::html:*[tokenize(@class,' ')='byline']    or                           ancestor::html:cite     or ancestor::html:*[tokenize(@epub:type,' ')='covertitle'] or ancestor::html:*[tokenize(@class,' ')='dateline']   or ancestor::html:p[parent::html:header[parent::html:body] and tokenize(@epub:type,' ')='z3998:author'] or                           ancestor::html:h1[tokenize(@epub:type,' ')='fulltitle'] or ancestor::html:dt         or ancestor::html:h1         or ancestor::html:h2        or                           ancestor::html:h3       or ancestor::html:h4         or ancestor::html:h5         or ancestor::html:h6        or                           ancestor::html:p[tokenize(@class,' ')='line']       or ancestor::html:p"&gt;
+    [nordic20] Image series are not allowed in inline context (
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    )
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_21</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_21_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_21_1">Show/hide code for <code>html:table</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_21_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:table"&gt;
+  
+  &lt;report test="ancestor::html:table"&gt;
+    [nordic21] Nested tables are not allowed (
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    )
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_23</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_23_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_23_1">Show/hide code for <code>html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-normal' and preceding::html:*[tokenize(@epub:type,'\s+')='pagebreak'][tokenize(@class,'\s+')='page-normal']]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_23_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-normal' and preceding::html:*[tokenize(@epub:type,'\s+')='pagebreak'][tokenize(@class,'\s+')='page-normal']]"&gt;
+  
+  &lt;let name="preceding" value="preceding::html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-normal'][1]"/&gt;
+  
+  &lt;assert test="number(current()/@title) &amp;gt; number($preceding/@title)"&gt;
+    [nordic23] pagebreak values must increase for pagebreaks with class="page-normal" (see pagebreak with title="
+    &lt;value-of select="@title"/&gt;
+    " and compare with pagebreak with title="
+    &lt;value-of select="$preceding/@title"/&gt;
+    ")
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_24</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_24_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_24_1">Show/hide code for <code>html:*[tokenize(@epub:type,' ')='pagebreak'][tokenize(@class,' ')='page-front']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_24_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,' ')='pagebreak'][tokenize(@class,' ')='page-front']"&gt;
+  
+  &lt;assert test="count(//html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-front' and @title=current()/@title])=1"&gt;
+    [nordic24] pagebreak values must be unique for pagebreaks with class="page-front" (see pagebreak with title="
+    &lt;value-of select="@title"/&gt;
+    ")
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_26_a</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_26_a_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_26_a_1">Show/hide code for <code>html:*[ancestor::html:body[html:header] and tokenize(@epub:type,'\s+')=('note','rearnote','footnote')]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_26_a_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[ancestor::html:body[html:header] and tokenize(@epub:type,'\s+')=('note','rearnote','footnote')]"&gt;
+  No rule:<!-- this is the single-HTML version of the rule; the multi-HTML version of this rule is in nordic2015-1.opf-and-html.sch -->
+  
+  &lt;assert test="count(//html:a[tokenize(@epub:type,'\s+')='noteref'][substring-after(@href, '#')=current()/@id])&amp;gt;=1"&gt;
+    [nordic26a] Each note must have at least one &amp;lt;a epub:type="noteref" ...&amp;gt; referencing it:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_26_b</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_26_b_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_26_b_1">Show/hide code for <code>html:a[ancestor::html:body[html:header] and tokenize(@epub:type,'\s+')='noteref']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_26_b_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:a[ancestor::html:body[html:header] and tokenize(@epub:type,'\s+')='noteref']"&gt;
+  No rule:<!-- this is the single-HTML version of the rule; the multi-HTML version of this rule is in nordic2015-1.opf-and-html.sch -->
+  
+  &lt;assert test="count(//html:*[tokenize(@epub:type,'\s+')=('note','rearnote','footnote') and @id = current()/substring-after(@href,'#')]) &amp;gt;= 1"&gt;
+    [nordic26b] The note reference with the href "
+    &lt;value-of select="@href"/&gt;
+    " attribute must resolve to a note, rearnote or footnote in the publication:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_27_a</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_27_a_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_27_a_1">Show/hide code for <code>html:*[ancestor::html:body[html:header] and tokenize(@epub:type,' ')='annotation']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_27_a_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[ancestor::html:body[html:header] and tokenize(@epub:type,' ')='annotation']"&gt;
+  No rule:<!-- this is the single-HTML version of the rule; the multi-HTML version of this rule is in nordic2015-1.opf-and-html.sch -->
+  
+  &lt;assert test="count(//html:a[tokenize(@epub:type,' ')='annoref'][substring-after(@href, '#')=current()/@id])&amp;gt;=1"&gt;
+    [nordic27a] Each annotation must have at least one &amp;lt;a epub:type="annoref" ...&amp;gt; referencing it:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_27_b</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_27_b_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_27_b_1">Show/hide code for <code>html:a[ancestor::html:body[html:header] and tokenize(@epub:type,'\s+')='annoref']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_27_b_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:a[ancestor::html:body[html:header] and tokenize(@epub:type,'\s+')='annoref']"&gt;
+  No rule:<!-- this is the single-HTML version of the rule; the multi-HTML version of this rule is in nordic2015-1.opf-and-html.sch -->
+  
+  &lt;assert test="count(//html:*[tokenize(@epub:type,'\s+')=('annotation') and @id = current()/substring-after(@href,'#')]) &amp;gt;= 1"&gt;
+    [nordic26b] The annotation with the href "
+    &lt;value-of select="@href"/&gt;
+    " must resolve to a annotation in the publication:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_29a</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_29a_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_29a_1">Show/hide code for <code>html:address | html:aside | html:blockquote | html:p | html:caption | html:div | html:dl | html:ul | html:ol | html:figure | html:table | html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_29a_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:address | html:aside | html:blockquote | html:p | html:caption | html:div | html:dl | html:ul | html:ol | html:figure | html:table | html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6"&gt;
+  
+  &lt;let name="inline-ancestor" value="ancestor::*[namespace-uri()='http://www.w3.org/1999/xhtml' and local-name()=('a','abbr','bdo','code','dfn','em','kbd','q','samp','span','strong','sub','sup')][1]"/&gt;
+  
+  &lt;report test="count($inline-ancestor)"&gt;
+    [nordic29] Block element
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    used in inline context (inside the inline element
+    &lt;value-of select="concat('&amp;lt;',$inline-ancestor/name(),string-join(for $a in ($inline-ancestor/@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    )
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_29b</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_29b_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_29b_1">Show/hide code for <code>html:address | html:aside | html:blockquote | html:p | html:caption | html:div | html:dl | html:ul | html:ol | html:figure | html:table | html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6 | html:section | html:article</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_29b_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:address | html:aside | html:blockquote | html:p | html:caption | html:div | html:dl | html:ul | html:ol | html:figure | html:table | html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6 | html:section | html:article"&gt;
+  
+  &lt;let name="inline-sibling-element" value="../*[namespace-uri()='http://www.w3.org/1999/xhtml' and local-name()=('a','abbr','bdo','code','dfn','em','kbd','q','samp','span','strong','sub','sup')][1]"/&gt;
+  
+  &lt;let name="inline-sibling-text" value="../text()[normalize-space()][1]"/&gt;
+  
+  &lt;report test="count($inline-sibling-element) and not((self::html:ol or self::html:ul) and parent::html:li)"&gt;
+    [nordic29] Block element
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    as sibling to inline element
+    &lt;value-of select="concat('&amp;lt;',$inline-sibling-element/name(),string-join(for $a in ($inline-sibling-element/@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+  &lt;report test="count($inline-sibling-text) and not((self::html:ol or self::html:ul) and parent::html:li)"&gt;
+    [nordic29] Block element
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    as sibling to text content (
+    &lt;value-of select="if (string-length(normalize-space($inline-sibling-text)) &amp;lt; 100) then normalize-space($inline-sibling-text) else concat(substring(normalize-space($inline-sibling-text),1,100),' (...)')"/&gt;
+    )
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_29c</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_29c_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_29c_1">Show/hide code for <code>html:*[tokenize(@epub:type,' ')='z3998:production'][ancestor::html:a        or ancestor::html:abbr    or ancestor::html:a[tokenize(@epub:type,' ')='annoref']   or                                      ancestor::html:bdo      or ancestor::html:code       or ancestor::html:dfn        or ancestor::html:em        or                                      ancestor::html:kbd      or ancestor::html:p[tokenize(@class,' ')='linenum']    or ancestor::html:a[tokenize(@epub:type,' ')='noteref']    or                                      ancestor::html:q        or ancestor::html:samp       or ancestor::html:span[tokenize(@epub:type,' ')='z3998:sentence']       or ancestor::html:span      or                                      ancestor::html:strong   or ancestor::html:sub        or ancestor::html:sup        or ancestor::html:span[tokenize(@epub:type,' ')='z3998:word']         or                                      ancestor::html:address  or ancestor::html:*[tokenize(@epub:type,' ')='z3998:author' and not(parent::html:header[parent::html:body])]     or ancestor::html:p[tokenize(@epub:type,' ')='bridgehead'] or ancestor::html:*[tokenize(@class,' ')='byline']    or                                      ancestor::html:cite     or ancestor::html:*[tokenize(@epub:type,' ')='covertitle'] or ancestor::html:*[tokenize(@class,' ')='dateline']   or ancestor::html:p[parent::html:header[parent::html:body] and tokenize(@epub:type,' ')='z3998:author'] or                                      ancestor::html:h1[tokenize(@epub:type,' ')='fulltitle'] or ancestor::html:dt         or ancestor::html:h1         or ancestor::html:h2        or                                      ancestor::html:h3       or ancestor::html:h4         or ancestor::html:h5         or ancestor::html:h6        or                                      ancestor::html:p[tokenize(@class,' ')='line']       or ancestor::html:p]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_29c_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,' ')='z3998:production'][ancestor::html:a        or ancestor::html:abbr    or ancestor::html:a[tokenize(@epub:type,' ')='annoref']   or                                      ancestor::html:bdo      or ancestor::html:code       or ancestor::html:dfn        or ancestor::html:em        or                                      ancestor::html:kbd      or ancestor::html:p[tokenize(@class,' ')='linenum']    or ancestor::html:a[tokenize(@epub:type,' ')='noteref']    or                                      ancestor::html:q        or ancestor::html:samp       or ancestor::html:span[tokenize(@epub:type,' ')='z3998:sentence']       or ancestor::html:span      or                                      ancestor::html:strong   or ancestor::html:sub        or ancestor::html:sup        or ancestor::html:span[tokenize(@epub:type,' ')='z3998:word']         or                                      ancestor::html:address  or ancestor::html:*[tokenize(@epub:type,' ')='z3998:author' and not(parent::html:header[parent::html:body])]     or ancestor::html:p[tokenize(@epub:type,' ')='bridgehead'] or ancestor::html:*[tokenize(@class,' ')='byline']    or                                      ancestor::html:cite     or ancestor::html:*[tokenize(@epub:type,' ')='covertitle'] or ancestor::html:*[tokenize(@class,' ')='dateline']   or ancestor::html:p[parent::html:header[parent::html:body] and tokenize(@epub:type,' ')='z3998:author'] or                                      ancestor::html:h1[tokenize(@epub:type,' ')='fulltitle'] or ancestor::html:dt         or ancestor::html:h1         or ancestor::html:h2        or                                      ancestor::html:h3       or ancestor::html:h4         or ancestor::html:h5         or ancestor::html:h6        or                                      ancestor::html:p[tokenize(@class,' ')='line']       or ancestor::html:p]"&gt;
+  
+  &lt;report test="descendant::html:*[self::html:address    or self::html:aside[tokenize(@epub:type,' ')='annotation'] or self::html:*[tokenize(@epub:type,' ')='z3998:author' and not(parent::html:header[parent::html:body])]   or                                           self::html:blockquote or self::html:p[tokenize(@epub:type,' ')='bridgehead'] or self::html:caption  or                                            self::html:*[tokenize(@class,' ')='dateline']   or self::html:div        or self::html:dl       or                                            self::html:p[parent::html:header[parent::html:body] and tokenize(@epub:type,' ')='z3998:author']  or self::html:h1[tokenize(@epub:type,' ')='fulltitle']   or                                            self::html:aside[tokenize(@epub:type,' ')='epigraph']   or self::html:p[tokenize(@class,' ')='line']     or                                           self::html:*[tokenize(@class,' ')='linegroup']  or                                           self::html:*[self::html:ul or self::html:ol]       or self::html:a[tokenize(@epub:type,' ')=('note','rearnote','footnote')]       or self::html:p        or                                            self::html:*[tokenize(@epub:type,' ')='z3998:poem']       or self::html:*[(self::figure or self::aside) and tokenize(@epub:type,'s')='sidebar']    or self::html:table    or                                            self::html:*[matches(local-name(),'^h\d$') and tokenize(@class,' ')='title']]"&gt;
+    [nordic29] Prodnote in inline context used as block element:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_40</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_40_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_40_1">Show/hide code for <code>html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-normal' and count(preceding::html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-normal'])]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_40_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-normal' and count(preceding::html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-normal'])]"&gt;
+  
+  &lt;let name="preceding-pagebreak" value="preceding::html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-normal'][1]"/&gt;
+  
+  &lt;report test="number($preceding-pagebreak/@title) != number(@title)-1"&gt;
+    [nordic40a] No gaps may occur in page numbering (see pagebreak with title="
+    &lt;value-of select="@title"/&gt;
+    " and compare with pagebreak with title="
+    &lt;value-of select="$preceding-pagebreak/@title"/&gt;
+    ")
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_50_a</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_50_a_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_50_a_1">Show/hide code for <code>html:img[parent::html:figure/tokenize(@class,'\s+')='image']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_50_a_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:img[parent::html:figure/tokenize(@class,'\s+')='image']"&gt;
+  
+  &lt;assert test="@alt and @alt!=''"&gt;
+    [nordic50a] an image inside a figure with class='image' must have a non-empty alt attribute:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_5152</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_5152_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_5152_1">Show/hide code for <code>html:img</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_5152_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:img"&gt;
+  
+  &lt;assert test="@src"&gt;
+    [nordic52] Images must have a src attribute:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_59</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_59_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_59_1">Show/hide code for <code>html:dl</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_59_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:dl"&gt;
+  
+  &lt;report test="html:*[tokenize(@epub:type,' ')='pagebreak']"&gt;
+    [nordic59] pagebreak in definition list must not occur as siblings to dd or dt:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_96_a</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_96_a_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_96_a_1">Show/hide code for <code>html:*[tokenize(@epub:type,' ')='z3998:production']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_96_a_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,' ')='z3998:production']"&gt;
+  
+  &lt;report test="ancestor::html:*[tokenize(@epub:type,'\s+')='z3998:production']"&gt;
+    [nordic96a] nested production notes are not allowed:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_101</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_101_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_101_1">Show/hide code for <code>html:figure[tokenize(@class,'\s+')='image-series']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_101_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:figure[tokenize(@class,'\s+')='image-series']"&gt;
+  
+  &lt;assert test="count(html:figure[tokenize(@class,'\s+')=('image', 'image-series')]) ge 2"&gt;
+    [nordic101] There must be at least two figures with either class="image" or class="image-series" in a image series figure:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_102</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_102_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_102_1">Show/hide code for <code>html:figure[tokenize(@class,'\s+')='image']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_102_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:figure[tokenize(@class,'\s+')='image']"&gt;
+  
+  &lt;assert test="html:img"&gt;
+    [nordic102] There must be an img element in every figure with class="image":
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;report test="parent::html:figure[tokenize(@class,'\s+')='image']"&gt;
+    [nordic102] Wrapping &amp;lt;figure class="image"&amp;gt; inside another &amp;lt;figure class="image"&amp;gt; is not allowed. Did you mean to use "image-series" as a class on the outer figure?
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_104</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_104_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_104_1">Show/hide code for <code>html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_104_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6"&gt;
+  
+  &lt;report test="normalize-space(.)=''"&gt;
+    [nordic104] Heading
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    may not be empty
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_105</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_105_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_105_1">Show/hide code for <code>html:*[tokenize(@epub:type,' ')='pagebreak']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_105_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,' ')='pagebreak']"&gt;
+  
+  &lt;assert test="tokenize(@class,'\s+')=('page-front','page-normal','page-special')"&gt;
+    [nordic105] Page breaks must have either a 'page-front', a 'page-normal' or a 'page-special' class:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;assert test="count(*|comment())=0 and string-length(string-join(text(),''))=0"&gt;
+    [nordic105] Pagebreaks must not contain anything
+    &lt;value-of select="if (string-length(text())&amp;gt;0 and normalize-space(text())='') then ' (element contains empty spaces)' else ''"/&gt;
+    :
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_110</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_110_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_110_1">Show/hide code for <code>html:*[tokenize(@epub:type,' ')='pagebreak']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_110_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,' ')='pagebreak']"&gt;
+  
+  &lt;report test="ancestor::*[self::html:h1 or self::html:h2 or self::html:h3 or self::html:h4 or self::html:h5 or self::html:h6]"&gt;
+    [nordic110] pagebreak elements are not allowed in headings:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_123</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_123_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_123_1">Show/hide code for <code>html:*[tokenize(@epub:type,'\s+')='cover']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_123_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,'\s+')='cover']"&gt;
+  
+  &lt;report test="tokenize(@epub:type,'\s+')=('frontmatter','bodymatter','backmatter')"&gt;
+    [nordic123] Cover (Jacket copy) is a document partition and can not be part the other document partitions frontmatter, bodymatter and rearmatter:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_127</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_127_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_127_1">Show/hide code for <code>html:body/html:section[tokenize(@epub:type,'\s+')='toc']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_127_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:body/html:section[tokenize(@epub:type,'\s+')='toc']"&gt;
+  
+  &lt;assert test="html:ol"&gt;
+    [nordic127a] The top-level table of contents must contain a "ol" element as a direct child of the parent
+    &lt;value-of select="if (self::html:body) then 'body' else 'section'"/&gt;
+    element.
+  &lt;/assert&gt;
+  
+  &lt;assert test="tokenize(@epub:type,'\s+') = ('frontmatter', 'backmatter')"&gt;
+    [nordic127b] The table of contents must be in either frontmatter or backmatter; it is not allowed in bodymatter or cover.
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_128_b</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_128_b_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_128_b_1">Show/hide code for <code>html:html/html:head</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_128_b_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:html/html:head"&gt;
+  
+  &lt;assert test="count(html:meta[@name='nlb:guidelines'])=1"&gt;
+    [nordic128b] nlb:guidelines metadata must occur exactly once.
+  &lt;/assert&gt;
+  
+  &lt;assert test="html:meta[@name='nlb:guidelines']/@content='2018-1'"&gt;
+    [nordic128c] nlb:guidelines metadata value must be 2018-1.
+  &lt;/assert&gt;
+  
+  &lt;assert test="count(html:meta[@name='nlb:supplier'])=1"&gt;
+    [nordic128d] nlb:supplier metadata must occur exactly once.
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_130</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_130_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_130_1">Show/hide code for <code>html:meta[@name='dc:language']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_130_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:meta[@name='dc:language']"&gt;
+  
+  &lt;assert test="@content=/html:html/@xml:lang"&gt;
+    [nordic130] dc:language metadata must equal the root element xml:lang
+  &lt;/assert&gt;
+  
+  &lt;assert test="@content=/html:html/@lang"&gt;
+    [nordic130] dc:language metadata must equal the root element lang
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>TODO</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_TODO_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_TODO_1">Show/hide code for <code>*[@lang]</code>
+            </a>
+         </p>
+         <pre id="code_TODO_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="*[@lang]"&gt;
+  
+  &lt;assert test="@lang = @xml:lang"&gt;
+    [TODO] if the lang attribute is present, then the xml:lang attribute must also be present and equal to the lang attribute. (
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    )
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_131</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_131_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_131_1">Show/hide code for <code>*[@xml:lang]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_131_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="*[@xml:lang]"&gt;
+  
+  &lt;assert test="@xml:lang = @lang"&gt;
+    [TODO] if the xml:lang attribute is present, then the lang attribute must also be present and equal to the xml:lang attribute. (
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    )
+  &lt;/assert&gt;
+  
+  &lt;assert test="matches(@xml:lang,'^[a-z]{2,3}(-[A-Za-z0-9]+)*$')"&gt;
+    [nordic131] xml:lang must match '^[a-z]+(-[A-Z][A-Z]+)?$' (
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    )
+  &lt;/assert&gt;
+  No rule:<!--
+                no - error
+                nn - error
+                nb - error
+                no-NB - error
+                no-NN - error
+                nb-NO - ok
+                nn-NO - ok
+                nor - error
+                nob - error
+                nno - error
+                non - error
+            -->
+  
+  &lt;report test="tokenize(@xml:lang,'-')[1] = ('no', 'nor', 'nob', 'nno', 'non')"&gt;
+    [TODO] Language codes cannot start with no/nor/nob/nno/non. Allowed norwegian language codes are "nb-NO" and "nn-NO". (
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    )
+  &lt;/report&gt;
+  
+  &lt;report test="tokenize(@xml:lang,'-')[1] = ('nb', 'nn') and not(substring-after(@xml:lang,'-') = 'NO')"&gt;
+    [TODO] Norwegian language codes must have the suffix "-NO". (
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    )
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_135_a</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_135_a_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_135_a_1">Show/hide code for <code>html:*[tokenize(@epub:type,'\s+')='z3998:poem']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_135_a_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,'\s+')='z3998:poem']"&gt;
+  
+  &lt;assert test="html:*[tokenize(@class,'\s+')='linegroup']"&gt;
+    [nordic135a] Every poem must contain a linegroup:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;report test="html:p[tokenize(@class,'\s+')='line']"&gt;
+    [nordic135a] Poem lines must be wrapped in a linegroup:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    contains;
+    &lt;value-of select="concat('&amp;lt;',html:p[tokenize(@class,'\s+')='line'][1]/name(),string-join(for $a in (html:p[tokenize(@class,'\s+')='line'][1]/@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_135_b</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_135_b_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_135_b_1">Show/hide code for <code>html:*[tokenize(@class,'\s+')='linegroup']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_135_b_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@class,'\s+')='linegroup']"&gt;
+  
+  &lt;assert test="parent::html:*[tokenize(@epub:type,'\s+')='z3998:poem']"&gt;
+    [nordic135b] Linegroups must be wrapped in a poem:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_140</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_140_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_140_1">Show/hide code for <code>html:body[tokenize(@epub:type,'\s+')='cover'] | html:section[tokenize(@epub:type,'\s+')='cover']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_140_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:body[tokenize(@epub:type,'\s+')='cover'] | html:section[tokenize(@epub:type,'\s+')='cover']"&gt;
+  
+  &lt;assert test="count(*[not(matches(local-name(),'h\d'))])=count(html:section[tokenize(@class,'\s+')=('frontcover','rearcover','leftflap','rightflap')])"&gt;
+    [nordic140] Only sections with one of the classes 'frontcover', 'rearcover', 'leftflap' or 'rightflap' is allowed in cover
+  &lt;/assert&gt;
+  
+  &lt;assert test="count(html:section[tokenize(@class,'\s+')=('frontcover','rearcover','leftflap','rightflap')])&amp;gt;=1"&gt;
+    [nordic140] There must be at least one section with one of the classes 'frontcover', 'rearcover', 'leftflap' or 'rightflap' in cover.
+  &lt;/assert&gt;
+  
+  &lt;report test="count(html:section[tokenize(@class,'\s+')='frontcover'])&amp;gt;1"&gt;
+    [nordic140] Too many sections with class="frontcover" in cover
+  &lt;/report&gt;
+  
+  &lt;report test="count(html:section[tokenize(@class,'\s+')='rearcover'])&amp;gt;1"&gt;
+    [nordic140] Too many sections with class="rearcover" in cover
+  &lt;/report&gt;
+  
+  &lt;report test="count(html:section[tokenize(@class,'\s+')='leftflap'])&amp;gt;1"&gt;
+    [nordic140] Too many sections with class="leftflap" in cover
+  &lt;/report&gt;
+  
+  &lt;report test="count(html:section[tokenize(@class,'\s+')='rightflap'])&amp;gt;1"&gt;
+    [nordic140] Too many sections with class="rightflap" in cover
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_142</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_142_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_142_1">Show/hide code for <code>html:*[tokenize(@epub:type,'\s+')='pagebreak'][ancestor::html:section[@class='nonstandardpagination']]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_142_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,'\s+')='pagebreak'][ancestor::html:section[@class='nonstandardpagination']]"&gt;
+  
+  &lt;assert test="tokenize(@class,'\s+')='page-special'"&gt;
+    [nordic142] The class page-special must be used in section/@class='nonstandardpagination':
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_143_a</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_143_a_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_143_a_1">Show/hide code for <code>html:*[tokenize(@epub:type,' ')='pagebreak'][parent::html:ul or parent::html:ol]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_143_a_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,' ')='pagebreak'][parent::html:ul or parent::html:ol]"&gt;
+  
+  &lt;report test="../html:li"&gt;
+    [nordic143a] pagebreak is not allowed as sibling to list items:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_143_a_a</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_143_a_a_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_143_a_a_1">Show/hide code for <code>html:li</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_143_a_a_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:li"&gt;
+  
+  &lt;report test="(.//node()[not(self::text()) or normalize-space(.)])[last()][self::* and tokenize(@epub:type,'\s+')='pagebreak']"&gt;
+    [nordic143aa] pagebreak is not allowed as the last node of a list item:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_143_b</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_143_b_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_143_b_1">Show/hide code for <code>html:li[position()=1 and .//*[tokenize(@epub:type,'\s+')='pagebreak']]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_143_b_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:li[position()=1 and .//*[tokenize(@epub:type,'\s+')='pagebreak']]"&gt;
+  
+  &lt;assert test=".//node() intersect .//*[@type='pagebreak']/preceding::node()"&gt;
+    [nordic143b] pagebreak is not allowed at the beginning of the first list item; it should be placed before the list:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_200</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_200_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_200_1">Show/hide code for <code>html:title</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_200_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:title"&gt;
+  
+  &lt;assert test="text() and not(normalize-space(.)='')"&gt;
+    [nordic200] The title element must not be empty.
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_201</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_201_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_201_1">Show/hide code for <code>html:*[tokenize(@epub:type,'\s+')=('cover','frontmatter','bodymatter','backmatter')]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_201_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,'\s+')=('cover','frontmatter','bodymatter','backmatter')]"&gt;
+  
+  &lt;report test="count(for $t in (tokenize(@epub:type,'\s+')) return if $t=('cover','frontmatter','bodymatter','backmatter') then $t else ()) gt 1"&gt;
+    [nordic201] cover, frontmatter, bodymatter and backmatter cannot be used together on the same element:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_202</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_202_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_202_1">Show/hide code for <code>html:*[tokenize(@epub:type,' ')='frontmatter']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_202_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,' ')='frontmatter']"&gt;
+  
+  &lt;let name="always-allowed-types" value="('abstract','acknowledgments','afterword','answers','appendix','assessment','assessments','bibliography',                 'z3998:biographical-note','case-study','chapter','colophon','conclusion','contributors','copyright-page','credits','dedication','z3998:discography','division','z3998:editorial-note','epigraph','epilogue',                 'errata','z3998:filmography','footnotes','foreword','glossary','z3998:grant-acknowledgment','halftitlepage','imprimatur','imprint','index','index-group','index-headnotes','index-legend','introduction',                 'keywords','landmarks','loa','loi','lot','lov','notice','other-credits','page-list','practices','preamble','preface','prologue','z3998:promotional-copy','z3998:published-works',                 'z3998:publisher-address','qna','rearnotes','revision-history','z3998:section','seriespage','subchapter','z3998:subsection','toc','toc-brief','z3998:translator-note','volume')"/&gt;
+  
+  &lt;let name="allowed-types" value="($always-allowed-types, 'titlepage')"/&gt;
+  
+  &lt;assert test="count(tokenize(@epub:type,'\s+')) = 1 or tokenize(@epub:type,'\s+')=$allowed-types"&gt;
+    [nordic202] '
+    &lt;value-of select="(tokenize(@epub:type,'\s+')[not(.='frontmatter')],'(missing type)')[1]"/&gt;
+    ' is not an allowed type in frontmatter. On elements with the epub:type "frontmatter", you can either leave the type blank, or you can use one of the following types:
+    &lt;value-of select="string-join($allowed-types[position() != last()],''', ''')"/&gt;
+    or '
+    &lt;value-of select="$allowed-types[last()]"/&gt;
+    '.
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_203_a</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_203_a_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_203_a_1">Show/hide code for <code>html:*[tokenize(@epub:type,'\s+')='rearnote']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_203_a_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,'\s+')='rearnote']"&gt;
+  
+  &lt;assert test="ancestor::html:section[tokenize(@epub:type,'\s+')='rearnotes']"&gt;
+    [nordic203a] 'rearnote' must have a section ancestor with 'rearnotes':
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_203_c</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_203_c_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_203_c_1">Show/hide code for <code>html:section[tokenize(@epub:type,'\s+')='rearnotes']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_203_c_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:section[tokenize(@epub:type,'\s+')='rearnotes']"&gt;
+  
+  &lt;assert test="descendant::html:*[tokenize(@epub:type,'\s+')='rearnote']"&gt;
+    [nordic203c] sections with the epub:type 'rearnotes' must have descendants with 'rearnote'.
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_203_d</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_203_d_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_203_d_1">Show/hide code for <code>html:*[tokenize(@epub:type,'\s+')='rearnote']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_203_d_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,'\s+')='rearnote']"&gt;
+  
+  &lt;assert test="parent::html:ol"&gt;
+    [nordic203d] rearnotes must be part of an ordered list:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;assert test="self::html:li"&gt;
+    [nordic203d] 'rearnote' can only be applied to &amp;lt;li&amp;gt; elements:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_204_a</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_204_a_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_204_a_1">Show/hide code for <code>html:*[tokenize(@epub:type,'\s+')='footnote']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_204_a_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,'\s+')='footnote']"&gt;
+  
+  &lt;assert test="ancestor::html:section[tokenize(@epub:type,'\s+')='footnotes']"&gt;
+    [nordic204a] 'footnote' must have a section ancestor with 'footnotes':
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_204_c</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_204_c_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_204_c_1">Show/hide code for <code>html:section[tokenize(@epub:type,'\s+')='footnotes']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_204_c_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:section[tokenize(@epub:type,'\s+')='footnotes']"&gt;
+  
+  &lt;assert test="descendant::html:*[tokenize(@epub:type,'\s+')='footnote']"&gt;
+    [nordic204c] sections with the epub:type 'footnotes' must have descendants with 'footnote'.
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_204_d</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_204_d_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_204_d_1">Show/hide code for <code>html:*[tokenize(@epub:type,'\s+')='footnote']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_204_d_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,'\s+')='footnote']"&gt;
+  
+  &lt;assert test="parent::html:ol"&gt;
+    [nordic203d] footnotes must be part of an ordered list:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;assert test="self::html:li"&gt;
+    [nordic204d] 'footnote' can only be applied to &amp;lt;li&amp;gt; elements:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_208</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_208_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_208_1">Show/hide code for <code>html:*[tokenize(@epub:type,' ')='bodymatter']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_208_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,' ')='bodymatter']"&gt;
+  
+  &lt;let name="always-allowed-types" value="('abstract','acknowledgments','afterword','answers','appendix','assessment','assessments','bibliography',                 'z3998:biographical-note','case-study','chapter','colophon','conclusion','contributors','copyright-page','credits','dedication','z3998:discography','division','z3998:editorial-note','epigraph','epilogue',                 'errata','z3998:filmography','footnotes','foreword','glossary','z3998:grant-acknowledgment','halftitlepage','imprimatur','imprint','index','index-group','index-headnotes','index-legend','introduction',                 'keywords','landmarks','loa','loi','lot','lov','notice','other-credits','page-list','practices','preamble','preface','prologue','z3998:promotional-copy','z3998:published-works',                 'z3998:publisher-address','qna','rearnotes','revision-history','z3998:section','seriespage','subchapter','z3998:subsection','toc','toc-brief','z3998:translator-note','volume')"/&gt;
+  
+  &lt;let name="allowed-types" value="($always-allowed-types, 'part')"/&gt;
+  
+  &lt;assert test="tokenize(@epub:type,'\s+')=$allowed-types"&gt;
+    [nordic208] '
+    &lt;value-of select="(tokenize(@epub:type,'\s+')[not(.='bodymatter')],'(missing type)')[1]"/&gt;
+    ' is not an allowed type in bodymatter. Elements with the type "bodymatter" must also have one of the types
+    &lt;value-of select="string-join($allowed-types[position() != last()],''', ''')"/&gt;
+    or '
+    &lt;value-of select="$allowed-types[last()]"/&gt;
+    '.
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_211</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_211_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_211_1">Show/hide code for <code>html:*[self::html:section or self::html:article][parent::html:*[tokenize(@epub:type,' ')=('part','volume')]]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_211_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[self::html:section or self::html:article][parent::html:*[tokenize(@epub:type,' ')=('part','volume')]]"&gt;
+  
+  &lt;let name="always-allowed-types" value="('abstract','acknowledgments','afterword','answers','appendix','assessment','assessments','bibliography',                 'z3998:biographical-note','case-study','chapter','colophon','conclusion','contributors','copyright-page','credits','dedication','z3998:discography','division','z3998:editorial-note','epigraph','epilogue',                 'errata','z3998:filmography','footnotes','foreword','glossary','z3998:grant-acknowledgment','halftitlepage','imprimatur','imprint','index','index-group','index-headnotes','index-legend','introduction',                 'keywords','landmarks','loa','loi','lot','lov','notice','other-credits','page-list','practices','preamble','preface','prologue','z3998:promotional-copy','z3998:published-works',                 'z3998:publisher-address','qna','rearnotes','revision-history','z3998:section','seriespage','subchapter','z3998:subsection','toc','toc-brief','z3998:translator-note','volume')"/&gt;
+  
+  &lt;let name="allowed-types" value="($always-allowed-types)"/&gt;
+  
+  &lt;assert test="tokenize(@epub:type,'\s+')=$allowed-types"&gt;
+    [nordic211] '
+    &lt;value-of select="(tokenize(@epub:type,'\s+')[not(.=('part','volume'))],'(missing type)')[1]"/&gt;
+    ' is not an allowed type in a part. Sections inside a part must also have one of the types
+    &lt;value-of select="string-join($allowed-types[position() != last()],''', ''')"/&gt;
+    or '
+    &lt;value-of select="$allowed-types[last()]"/&gt;
+    '.
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_215</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_215_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_215_1">Show/hide code for <code>html:*[tokenize(@epub:type,'\s+')='backmatter']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_215_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,'\s+')='backmatter']"&gt;
+  
+  &lt;let name="always-allowed-types" value="('abstract','acknowledgments','afterword','answers','appendix','assessment','assessments','bibliography',                 'z3998:biographical-note','case-study','chapter','colophon','conclusion','contributors','copyright-page','credits','dedication','z3998:discography','division','z3998:editorial-note','epigraph','epilogue',                 'errata','z3998:filmography','footnotes','foreword','glossary','z3998:grant-acknowledgment','halftitlepage','imprimatur','imprint','index','index-group','index-headnotes','index-legend','introduction',                 'keywords','landmarks','loa','loi','lot','lov','notice','other-credits','page-list','practices','preamble','preface','prologue','z3998:promotional-copy','z3998:published-works',                 'z3998:publisher-address','qna','rearnotes','revision-history','z3998:section','seriespage','subchapter','z3998:subsection','toc','toc-brief','z3998:translator-note','volume')"/&gt;
+  
+  &lt;let name="allowed-types" value="($always-allowed-types)"/&gt;
+  
+  &lt;assert test="count(tokenize(@epub:type,'\s+')) = 1 or tokenize(@epub:type,'\s+')=$allowed-types"&gt;
+    [nordic215] '
+    &lt;value-of select="(tokenize(@epub:type,'\s+')[not(.='backmatter')],'(missing type)')[1]"/&gt;
+    ' is not an allowed type in backmatter. On elements with the epub:type "backmatter", you can either leave the type blank, or you can use one of the following types:
+    &lt;value-of select="string-join($allowed-types[position() != last()],''', ''')"/&gt;
+    or '
+    &lt;value-of select="$allowed-types[last()]"/&gt;
+    '.
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_224</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_224_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_224_1">Show/hide code for <code>html:*[tokenize(@class,'\s+')='linenum']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_224_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@class,'\s+')='linenum']"&gt;
+  
+  &lt;assert test="self::html:span"&gt;
+    [nordic224] linenums must be spans:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;assert test="parent::html:p[tokenize(@class,'\s+')='line']"&gt;
+    [nordic224] linenums (span class="linenum") must be part of a line (p class="line"):
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;',string-join(.//text()[normalize-space()],' '),'&amp;lt;/',name(),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_225</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_225_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_225_1">Show/hide code for <code>html:*[tokenize(@epub:type,' ')='pagebreak']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_225_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@epub:type,' ')='pagebreak']"&gt;
+  
+  &lt;assert test="@title = normalize-space(@title)"&gt;
+    [nordic225] the title attribute must be normalized (no preceding or trailing whitespace):
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;',string-join(.//text()[normalize-space()],' '),'&amp;lt;/',name(),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;assert test="not(text()) or text() = @title"&gt;
+    [nordic225] if text is present in the pagebreak, then it must be equal to the title attribute:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;',string-join(.//text()[normalize-space()],' '),'&amp;lt;/',name(),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;assert test="matches(@title,'.+')"&gt;
+    [nordic225] The title attribute must be used to describe the page number:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;',string-join(.//text()[normalize-space()],' '),'&amp;lt;/',name(),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_263</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_263_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_263_1">Show/hide code for <code>html:section[tokenize(@epub:type,'\s+')='titlepage']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_263_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:section[tokenize(@epub:type,'\s+')='titlepage']"&gt;
+  
+  &lt;assert test="count(html:*[matches(local-name(),'h\d')])"&gt;
+    [nordic263] the titlepage must have a headline (and the headline must have epub:type="fulltitle" and class="title")
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_264</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_264_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_264_1">Show/hide code for <code>html:section[tokenize(@epub:type,'\s+')='titlepage']/html:*[matches(local-name(),'h\d')]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_264_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:section[tokenize(@epub:type,'\s+')='titlepage']/html:*[matches(local-name(),'h\d')]"&gt;
+  
+  &lt;assert test="tokenize(@epub:type,'\s+') = 'fulltitle'"&gt;
+    [nordic264] the headline on the titlepage must have a epub:type with the value "fulltitle":
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_253_a</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_253_a_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_253_a_1">Show/hide code for <code>html:figure</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_253_a_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:figure"&gt;
+  
+  &lt;assert test="tokenize(@epub:type,'\s+')='sidebar' or tokenize(@class,'\s+')=('image','image-series')"&gt;
+    [nordic253a] &amp;lt;figure&amp;gt; elements must either have an epub:type of "sidebar" or a class of "image" or "image-series":
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;report test="count((.[tokenize(@epub:type,'\s+')='sidebar'], .[tokenize(@class,'\s+')='image'], .[tokenize(@class,'\s+')='image-series'])) &amp;gt; 1"&gt;
+    [nordic253a] &amp;lt;figure&amp;gt; elements must either have an epub:type of "sidebar" or a class of "image" or "image-series":
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+  &lt;assert test="count(html:figcaption) &amp;lt;= 1"&gt;
+    [nordic253a] There cannot be more than one &amp;lt;figcaption&amp;gt; in a single figure element:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_253_b</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_253_b_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_253_b_1">Show/hide code for <code>html:figure[tokenize(@class,'\s+')='image']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_253_b_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:figure[tokenize(@class,'\s+')='image']"&gt;
+  
+  &lt;assert test="count(.//html:img) = 1"&gt;
+    [nordic253b] Image figures must contain exactly one img:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;assert test="count(html:img) = 1"&gt;
+    [nordic253b] The img in image figures must be a direct child of the figure:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_253_c</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_253_c_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_253_c_1">Show/hide code for <code>html:figure[tokenize(@class,'\s+')='image-series']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_253_c_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:figure[tokenize(@class,'\s+')='image-series']"&gt;
+  
+  &lt;assert test="count(html:img) = 0"&gt;
+    [nordic253c] Image series figures cannot contain img childen (the img elements must be contained in children figure elements):
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;assert test="count(html:figure[tokenize(@class,'\s+')='image']) &amp;gt;= 2"&gt;
+    [nordic253c] Image series must contain at least 2 image figures ("figure" elements with class "image"):
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_254</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_254_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_254_1">Show/hide code for <code>html:aside</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_254_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:aside"&gt;
+  
+  &lt;assert test="tokenize(@epub:type,' ') = ('z3998:production','sidebar','note','annotation','epigraph')"&gt;
+    [nordic254] &amp;lt;aside&amp;gt; elements must use one of the following epub:types: z3998:production, sidebar, note, annotation, epigraph (
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    )
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_255</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_255_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_255_1">Show/hide code for <code>html:abbr</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_255_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:abbr"&gt;
+  
+  &lt;assert test="tokenize(@epub:type,' ') = ('z3998:acronym','z3998:initialism','z3998:truncation')"&gt;
+    [nordic255] "abbr" elements must use one of the following epub:types: z3998:acronym (formed from the first part of a word: "Mr.", "approx.", "lbs.", "rec'd"), z3998:initialism (each letter pronounced separately: "XML", "US"), z3998:truncation (pronounced as a word: "NATO"):
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_257</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_257_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_257_1">Show/hide code for <code>*[@xml:lang or @lang]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_257_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="*[@xml:lang or @lang]"&gt;
+  
+  &lt;assert test="@xml:lang = @lang"&gt;
+    [nordic257] The `xml:lang` and the `lang` attributes must have the same value:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_258</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_258_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_258_1">Show/hide code for <code>html:body/html:section/html:div[tokenize(@epub:type,'\s')='pagebreak']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_258_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:body/html:section/html:div[tokenize(@epub:type,'\s')='pagebreak']"&gt;
+  
+  &lt;report test="count(preceding-sibling::*) and count(preceding-sibling::html:div[tokenize(@epub:type,'\s')='pagebreak']) = count(preceding-sibling::*)"&gt;
+    [nordic258] Only one pagebreak is allowed before any content in each content file:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_259</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_259_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_259_1">Show/hide code for <code>.[tokenize(@epub:type,'\s+')='pagebreak']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_259_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context=".[tokenize(@epub:type,'\s+')='pagebreak']"&gt;
+  
+  &lt;report test="ancestor::html:thead"&gt;
+    [nordic259] Pagebreaks can not occur within table headers (thead):
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+  &lt;report test="ancestor::html:tfoot"&gt;
+    [nordic259] Pagebreaks can not occur within table footers (tfoot):
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_260_a</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_260_a_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_260_a_1">Show/hide code for <code>html:figure[tokenize(@class,'\s+')='image']/html:img</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_260_a_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:figure[tokenize(@class,'\s+')='image']/html:img"&gt;
+  
+  &lt;assert test="not(preceding-sibling::*)"&gt;
+    [nordic260a] The first element in a figure with class="image" must be a "img" element:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_260_b</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_260_b_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_260_b_1">Show/hide code for <code>html:figure[tokenize(@class,'\s+')='image-series']/html:*[not(self::html:figure[tokenize(@class,'\s+')='image'])]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_260_b_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:figure[tokenize(@class,'\s+')='image-series']/html:*[not(self::html:figure[tokenize(@class,'\s+')='image'])]"&gt;
+  
+  &lt;report test="preceding-sibling::html:figure[tokenize(@class,'\s+')='image']"&gt;
+    [nordic260b] Content not allowed between or after image figure elements:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_261</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_261_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_261_1">Show/hide code for <code>html:div</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_261_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:div"&gt;
+  
+  &lt;report test="text()[normalize-space(.)]"&gt;
+    [nordic261] Text can't be placed directly inside div elements. Try wrapping it in a p element:
+    &lt;value-of select="normalize-space(string-join(text(),' '))"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_265</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_265_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_265_1">Show/hide code for <code>html:*[tokenize(@class,'\s+')='linegroup']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_265_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:*[tokenize(@class,'\s+')='linegroup']"&gt;
+  
+  &lt;report test="count(html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6) &amp;gt; 0 and not(self::html:section)"&gt;
+    [nordic265] linegroups with headlines must be section elements:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+  &lt;report test="count(html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6)   =  0 and not(self::html:div)"&gt;
+    [nordic265] linegroups without headlines must be div elements:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_268</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_268_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_268_1">Show/hide code for <code>html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_268_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6"&gt;
+  
+  &lt;let name="sectioning-element" value="ancestor::*[self::html:section or self::html:article or self::html:aside or self::html:nav or self::html:body][1]"/&gt;
+  
+  &lt;let name="this-level" value="xs:integer(replace(name(),'.*(\d)$','$1')) + (if (ancestor::html:header[parent::html:body]) then -1 else 0)"/&gt;
+  
+  &lt;let name="child-sectioning-elements" value="$sectioning-element//*[self::html:section or self::html:article or self::html:aside or self::html:nav or self::html:figure][ancestor::*[self::html:section or self::html:article or self::html:aside or self::html:nav or self::html:body][1] intersect $sectioning-element]"/&gt;
+  
+  &lt;let name="child-sectioning-element-with-wrong-level" value="$child-sectioning-elements[count(html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6) != 0 and (html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6)/xs:integer(replace(name(),'.*(\d)$','$1')) != min((6, $this-level + 1))][1]"/&gt;
+  
+  &lt;assert test="count($child-sectioning-element-with-wrong-level) = 0"&gt;
+    [nordic268] The subsections of
+    &lt;value-of select="concat('&amp;lt;',$sectioning-element/name(),string-join(for $a in ($sectioning-element/@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    (which contains the headline
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    &lt;value-of select="string-join(.//text(),' ')"/&gt;
+    &amp;lt;/
+    &lt;name/&gt;
+    &amp;gt;) must only use &amp;lt;h
+    &lt;value-of select="min((6, $this-level + 1))"/&gt;
+    &amp;gt; for headlines. It contains the element
+    &lt;value-of select="concat('&amp;lt;',$child-sectioning-element-with-wrong-level/name(),string-join(for $a in ($child-sectioning-element-with-wrong-level/@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+    which contains the headline
+    &lt;value-of select="concat('&amp;lt;',$child-sectioning-element-with-wrong-level/(html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6)[1]/name(),string-join(for $a in ($child-sectioning-element-with-wrong-level/(html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6)[1]/@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;',string-join($child-sectioning-element-with-wrong-level/(html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6)[1]//text(),' '),'&amp;lt;/',$child-sectioning-element-with-wrong-level/(html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6)[1]/name(),'&amp;gt;')"/&gt;
+    
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_269</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_269_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_269_1">Show/hide code for <code>html:body</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_269_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:body"&gt;
+  
+  &lt;let name="filename-regex" value="'^.*/[A-Za-z0-9_-]+\.xhtml$'"/&gt;
+  
+  &lt;assert test="matches(base-uri(.), $filename-regex)"&gt;
+    [nordic269] Only alphanumeric characters or "_" or "-" are allowed as part of the filename:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_270</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_270_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_270_1">Show/hide code for <code>*[@epub:type]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_270_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="*[@epub:type]"&gt;
+  
+  &lt;report test="tokenize(@epub:type,'\t+')='bridgehead'"&gt;
+    [nordic270] The epub:type "bridgehead" is not allowed:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_272</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_272_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_272_1">Show/hide code for <code>html:a[tokenize(@epub:type,'\s+')='annoref']</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_272_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:a[tokenize(@epub:type,'\s+')='annoref']"&gt;
+  
+  &lt;assert test="contains(@href, '#')"&gt;
+    [nordic272a] Note reference href attribute does not contain a fragment identifier:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;report test="contains(@href, '#') and not(substring-after(@href, '#') = //html:*[tokenize(@epub:type,'\s+')=('annotation')]/@id)"&gt;
+    [nordic272b] Annotation reference href attribute does not resolve to an annotation in the publication:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_273</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_273_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_273_1">Show/hide code for <code>html:a[starts-with(@href, '#')]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_273_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:a[starts-with(@href, '#')]"&gt;
+  
+  &lt;assert test="count(//html:*[@id = substring-after(current()/@href, '#')]) = 1"&gt;
+    [nordic273] Internal link ("
+    &lt;value-of select="@href"/&gt;
+    ") does not resolve:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_274</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_274_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_274_1">Show/hide code for <code>html:th[@headers] | html:td[@headers]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_274_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:th[@headers] | html:td[@headers]"&gt;
+  
+  &lt;assert test="ancestor::html:table//(html:th | html:td)/@id[. = tokenize(current()/@headers,'\s+')] eq tokenize(@headers,'\s+')"&gt;
+    [nordic274] All id references in the headers attribute must refer to a cell in the same table:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_275</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_275_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_275_1">Show/hide code for <code>*</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_275_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="*"&gt;
+  
+  &lt;report test="@longdesc"&gt;
+    [nordic275] The "longdesc" attribute is obsolete. Use a regular a element to link to the description, or (in the case of images) use an image map to provide a link from the image to the image's description.:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_276</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_276_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_276_1">Show/hide code for <code>html:a</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_276_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:a"&gt;
+  
+  &lt;report test="@accesskey and string-length(@accesskey)!=1"&gt;
+    [nordic276] The accesskey attribute value is not 1 character long:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+  &lt;report test="@tabindex and not(matches(@tabindex,'[^\d-]'))"&gt;
+    [nordic276] The tabindex attribute value is not expressed in numbers:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_279b</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_279b_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_279b_1">Show/hide code for <code>html:ol[@start]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_279b_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:ol[@start]"&gt;
+  
+  &lt;report test="matches(@start,'^\d+$')"&gt;
+    [nordic279b] The start attribute must be a positive integer:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_281</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_281_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_281_1">Show/hide code for <code>html:col[@span] | html:colgroup[@span]</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_281_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:col[@span] | html:colgroup[@span]"&gt;
+  
+  &lt;assert test="matches(@span,'^[1-9]\d*$')"&gt;
+    [nordic281] span attribute is not a positive integer:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_282</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_282_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_282_1">Show/hide code for <code>html:td | html:th</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_282_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:td | html:th"&gt;
+  
+  &lt;assert test="matches(@rowspan,'^[1-9]\d*$')"&gt;
+    [nordic282] The rowspan attribute value is not a positive integer:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;assert test="matches(@colspan,'^[1-9]\d*$')"&gt;
+    [nordic282] The colspan attribute value is not a positive integer:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;report test="@rowspan and xs:integer(@rowspan) gt count(parent::html:tr/following-sibling::html:tr) + 1"&gt;
+    [nordic282] The rowspan attribute value is larger than the number of rows left in the table:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_282_2"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_282_2">Show/hide code for <code>html:table</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_282_2" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="html:table"&gt;
+  
+  &lt;assert test="count(distinct-values(.//html:tr/(count((html:th | html:td)[not(@colspan)]) + sum((html:th | html:td)[@colspan]/xs:integer(@colspan))))) = 1"&gt;
+    [nlbpub123] The number of cells (accounting for colspan) must be the same in all rows:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <section>
+         <h2>nlbpub_283</h2>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_283_1"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_283_1">Show/hide code for <code>mathml:math</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_283_1" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="mathml:math"&gt;
+  
+  &lt;assert test="@alttext"&gt;
+    [nordic283] alttext attribute must be present:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;assert test="not(empty(@alttext))"&gt;
+    [nordic283] alttext attribute must be non-empty:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;assert test="@altimg"&gt;
+    [nordic283] altimg attribute must be present:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+  &lt;assert test="not(empty(@altimg))"&gt;
+    [nordic283] altimg attribute must be non-empty:
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/assert&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <p>
+            <a class="btn btn-secondary btn-sm"
+               data-toggle="collapse"
+               href="#code_nlbpub_283_2"
+               role="button"
+               aria-expanded="false"
+               aria-controls="code_nlbpub_283_2">Show/hide code for <code>*</code>
+            </a>
+         </p>
+         <pre id="code_nlbpub_283_2" class="collapse" xml:space="preserve"><code class="hljs xml">&lt;rule context="*"&gt;
+  
+  &lt;report test="self::*:math except self::mathml:math"&gt;
+    [nlb124] &amp;lt;math&amp;gt;-elements must be in the MathML namespace ("http://www.w3.org/1998/Math/MathML"):
+    &lt;value-of select="concat('&amp;lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&amp;quot;',$a,'&amp;quot;'),''),'&amp;gt;')"/&gt;
+  &lt;/report&gt;
+  
+&lt;/rule&gt;</code></pre>
+         <hr/>
+      </section>
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+              integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+              crossorigin="anonymous"> </script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+              integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+              crossorigin="anonymous"> </script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+              integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+              crossorigin="anonymous"> </script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"
+              integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw="
+              crossorigin="anonymous"> </script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/xml.min.js"
+              integrity="sha256-tTizFdjdqBNNTjhOdrSB4jSoCiSZjbtQBdsUSl+P+PQ="
+              crossorigin="anonymous"> </script>
+      <script>hljs.initHighlightingOnLoad();</script>
+   </body>
+</html>

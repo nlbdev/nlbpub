@@ -11,6 +11,8 @@
     <!-- Rule 7: No <ul>, <ol> or <dl> inside <p> -->
     <!-- TODO: prøve å flytte til RNG -->
     <pattern id="nlbpub_7">
+        <p class="title">Rule 7: No &lt;ul&gt;, &lt;ol&gt; or &lt;dl&gt; inside &lt;p&gt;</p>
+        <p>Lists are not allowed inside paragraphs.</p> 
         <rule context="html:p">
             <report test="html:ul | html:ol">[nordic07] Lists (<value-of select="concat('&lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&quot;',$a,'&quot;'),''),'&gt;')"/>) are
                 not allowed inside paragraphs.</report>
@@ -21,6 +23,8 @@
 
     <!-- Rule 8: Page break with class=page-front is only allowed to occur in frontmatter -->
     <pattern id="nlbpub_8">
+        <p class="title">Rule 8: Page break with class="page-front" is only allowed to occur in frontmatter</p>
+        <p>Pagebreaks with class="page-frot" may only occur in frontmatter and cover.</p>
         <rule context="html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-front']">
             <assert test="ancestor::html:*[self::html:section or self::html:article or self::html:body]/tokenize(@epub:type,'\s+') = ('frontmatter','cover')">[nordic08] &lt;span epub:type="pagebreak"
                 class="page-front"/&gt; may only occur in frontmatter and cover. <value-of
@@ -31,6 +35,8 @@
     <!-- Rule 9: Disallow empty elements (with a few exceptions) -->
     <!-- vurderer å fjerne dd, kan fjerne flere ting etter behov senere -->
     <pattern id="nlbpub_9">
+        <p class="title">Rule 9: Disallow empty elements (with a few exceptions)</p>
+        <p>The only elements that can be empty are the elements img, br, meta, link, col, th, td, dd, hr, script, and also any element with the epub:type "pagebreak".</p>
         <rule context="html:*">
             <report
                 test="normalize-space(.)='' and not(*) and not(self::html:img or self::html:br or self::html:meta or self::html:link or self::html:col or self::html:th or self::html:td or self::html:dd or self::html:*[tokenize(@epub:type,'\s+')='pagebreak'] or self::html:hr or self::html:script)"
