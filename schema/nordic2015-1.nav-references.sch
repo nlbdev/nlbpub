@@ -35,6 +35,8 @@
     <ns prefix="epub" uri="http://www.idpf.org/2007/ops"/>
     <ns prefix="nordic" uri="http://www.mtm.se/epub/"/>
     <ns prefix="c" uri="http://www.w3.org/ns/xproc-step"/>
+    
+    <!-- ingen av disse reglene fanges av epubcheck eller ace -->
 
     <!-- Rule 1: All headings in the book must be referenced from the navigation document -->
     <pattern id="nav_references_1">

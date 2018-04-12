@@ -3,6 +3,7 @@
 
     <title>NLBPUB (én HTML5-fil i en unzippet EPUB3)</title>
     <!-- TODO: update rule ids -->
+    <!-- TODO: if we allow MathML in EPUB; look at whether or not we can import more of the rules declared in and referenced from dtbook.mathml.sch in the dtbook-validator script from the main DP2 distribution -->
 
     <ns prefix="html" uri="http://www.w3.org/1999/xhtml"/>
     <ns prefix="epub" uri="http://www.idpf.org/2007/ops"/>
@@ -966,6 +967,39 @@
         </rule>
     </pattern>
 
-    <!-- TODO: if we allow MathML in EPUB; look at whether or not we can import more of the rules declared in and referenced from dtbook.mathml.sch in the dtbook-validator script from the main DP2 distribution -->
+    <!-- Rule 40: No page numbering gaps for pagebreak w/page-normal -->
+    <!-- Rule 23: Increasing pagebreak values for page-normal -->
+    <pattern id="nordic_opf_and_html_40">
+        <rule
+            context="html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-normal' and count(preceding::html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-normal'])]">
+            <let name="preceding-pagebreak" value="preceding::html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-normal'][1]"/>
+            <report test="number($preceding-pagebreak/@title) != number(@title)-1">[nordic_opf_and_html_40b] No gaps may occur in page numbering (see pagebreak with title="<value-of select="@title"/>"
+                in <value-of select="replace(base-uri(.),'^.*/','')"/> and compare with pagebreak with title="<value-of select="$preceding-pagebreak/@title"/>" in <value-of
+                    select="replace(base-uri($preceding-pagebreak),'^.*/','')"/>)</report>
+            <assert test="number(@title) gt number($preceding-pagebreak/@title)">[nordic_opf_and_html_23] pagebreak values must increase for pagebreaks with class="page-normal" (see pagebreak with
+                title="<value-of select="@title"/>" in <value-of select="replace(base-uri(.),'^.*/','')"/> and compare with pagebreak with title="<value-of select="$preceding/@title"/> in
+                <value-of select="replace(base-uri($preceding-pagebreak),'^.*/','')"/>)</assert>
+        </rule>
+    </pattern>
+    
+    <!-- Rule 24: Values of pagebreak must be unique for page-front -->
+    <pattern id="nordic_opf_and_html_24">
+        <rule context="html:*[tokenize(@epub:type,' ')='pagebreak'][tokenize(@class,' ')='page-front']">
+            <assert test="count(//html:*[tokenize(@epub:type,'\s+')='pagebreak' and tokenize(@class,'\s+')='page-front' and @title=current()/@title])=1">[nordic_opf_and_html_24] pagebreak values must
+                be unique for pagebreaks with class="page-front" (see pagebreak with title="<value-of select="@title"/>" in <value-of select="replace(base-uri(.),'^.*/','')"/>)</assert>
+        </rule>
+    </pattern>
+    
+    <!--
+        MG20061101: added as a consequence of zedval feature request #1565049: http://sourceforge.net/p/zedval/feature-requests/12/
+        JAJ20150225: Imported from Pipeline 1 DTBook validator and adapted to EPUB3
+    -->
+    <pattern id="nordic_opf_and_html_276">
+        <!-- Valideres også av ACE, men kun som "serious", ikke "critical". -->
+        <rule context="html:a">
+            <report test="@accesskey and count(//html:a/@accesskey=@accesskey)!=1">[nordic_opf_and_html_276] The accesskey attribute value is not unique within the publication.</report>
+            <report test="@tabindex and count(//html:a/@tabindex=@tabindex)!=1">[nordic_opf_and_html_276] The tabindex attribute value is not unique within the publication.</report>
+        </rule>
+    </pattern>
 
 </schema>
