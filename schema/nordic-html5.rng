@@ -229,7 +229,23 @@
     epub:type
   -->
     
-    <define name="i18n">
+    <define name="i18n.required">
+        <attribute name="xml:lang">
+            <ref name="LanguageCode"/>
+        </attribute>
+        <attribute name="lang">
+            <ref name="LanguageCode"/>
+        </attribute>
+        <optional>
+            <attribute name="dir">
+                <choice>
+                    <value>ltr</value>
+                    <value>rtl</value>
+                </choice>
+            </attribute>
+        </optional>
+    </define>
+    <define name="i18n.optional">
         <optional>
             <attribute name="xml:lang">
                 <ref name="LanguageCode"/>
@@ -263,7 +279,7 @@
     
     <define name="attrs.base">
         <ref name="coreattrs.base"/>
-        <ref name="i18n"/>
+        <ref name="i18n.optional"/>
         <!-- the showin attribute in DTBook maps to the following classes in HTML: showin-xxx, showin-xxp, showin-xlx, showin-xlp, showin-bxx, showin-bxp, showin-blx, showin-blp -->
     </define>
     <define name="attrs.notype">
@@ -304,7 +320,7 @@
         <optional>
             <ref name="attr.xmlspace"/>
         </optional>
-        <ref name="i18n"/>
+        <ref name="i18n.optional"/>
         <!-- the showin attribute in DTBook maps to the following classes in HTML: showin-xxx, showin-xxp, showin-xlx, showin-xlp, showin-bxx, showin-bxp, showin-blx, showin-blp -->
     </define>
     <define name="attrsrqd.notype">
@@ -341,7 +357,7 @@
     
     <define name="htmlcontent">
         <ref name="head"/> <!-- head -->
-        <ref name="book"/> <!-- body -->
+        <ref name="body"/> <!-- body -->
     </define>
     <!--
     htmlContent designates that each html has a <head> of
@@ -358,9 +374,9 @@
             <a:documentation>The HTML root element (&lt;html&gt;) represents the root of an HTML document. All other elements must be descendants of this element.</a:documentation>
             <!-- HTML content model: head body -->
             <!-- Strict content model: head body -->
-            <attribute name="epub:prefix">
-                <value>z3998: http://www.daisy.org/z3998/2012/vocab/structure/#</value>
-            </attribute>
+            <optional>
+                <attribute name="epub:prefix"/>
+            </optional>
             <ref name="attlist.html"/>
             <ref name="htmlcontent"/> <!-- head, body -->
         </element>
@@ -380,7 +396,7 @@
   -->
     
     <define name="attlist.html" combine="interleave">
-        <ref name="i18n"/>
+        <ref name="i18n.required"/>
     </define>
     
     <!-- ======================== Document Head Metadata ======================= -->
@@ -437,7 +453,7 @@
     </define>
     
     <define name="attlist.head" combine="interleave">
-        <ref name="i18n"/>
+        <ref name="i18n.optional"/>
         <!-- NOTE: profile moved to head as link element -->
     </define>
     
@@ -524,7 +540,7 @@
     possibly constrained by the semantics for the individual names.
   -->
     <define name="attlist.meta" combine="interleave">
-        <ref name="i18n"/>
+        <ref name="i18n.optional"/>
         <optional>
             <attribute name="http-equiv">
                 <data type="NMTOKEN"/>
@@ -588,62 +604,31 @@
     Use: body surrounds the actual content of the document.
     <head>, which contains metadata, precedes <body>.
   -->
-    <define name="book">
+    <define name="body">
         <element name="body">
             <!-- HTML content model: a & abbr & address & article & aside & audio & b & bdi & bdo & blockquote & br & button & canvas & cite & code & data & datalist & del & details & dfn & dialog & div & dl & em & embed & fieldset & figure & footer & form & h1 & h2 & h3 & h4 & h5 & h6 & header & hr & i & iframe & img & input & ins & kbd & keygen & label & link & main & map & mark & math & menu & meta & meter & nav & noscript & object & ol & output & p & pre & progress & q & ruby & s & samp & script & section & select & small & span & strong & style & sub & sup & svg & table & template & textarea & time & u & ul & var & video & wbr & (text) -->
             <!-- Strict content model: (h1 p)? (section | article) -->
-            <choice>
-                <choice>
-                    <!-- multi-page HTML -->
+            <optional>
+                <element name="section">
                     <ref name="cover"/>
+                </element>
+            </optional>
+            <zeroOrMore>
+                <element name="section">
                     <ref name="frontmatter"/>
+                </element>
+            </zeroOrMore>
+            <oneOrMore>
+                <element name="section">
                     <ref name="bodymatter"/>
+                </element>
+            </oneOrMore>
+            <zeroOrMore>
+                <element name="section">
                     <ref name="backmatter"/>
-                </choice>
-                <group>
-                    <!-- single-page HTML -->
-                    <element name="header">
-                        <ref name="doctitle.headline"/> <!-- h1 -->
-                        <optional>
-                            <ref name="covertitle"/> <!-- p -->
-                        </optional>
-                        <zeroOrMore>
-                            <ref name="docauthor"/> <!-- p -->
-                        </zeroOrMore>
-                    </element>
-                    <oneOrMore>
-                        <choice>
-                           <element name="section">
-                               <choice>
-                                   <ref name="cover"/>
-                                   <ref name="frontmatter"/>
-                                   <ref name="bodymatter"/>
-                                   <ref name="backmatter"/>
-                               </choice>
-                           </element>
-                           <element name="article">
-                               <!-- "article" should be used for magazine or newspaper articles. Otherwise, "section" should be used. -->
-                               <choice>
-                                   <ref name="bodymatter"/>
-                               </choice>
-                           </element>
-                       </choice>
-                   </oneOrMore>
-                </group>
-                <group>
-                    <!-- navigation document -->
-                    <oneOrMore>
-                        <element name="nav">
-                            <attribute name="epub:type"/>
-                            <optional>
-                                <attribute name="hidden"/>
-                            </optional>
-                            <ref name="h1"/>
-                            <ref name="list"/>
-                        </element>
-                    </oneOrMore>
-                </group>
-            </choice>
+                </element>
+            </zeroOrMore>
+            
             <!-- (attributes and content is defined by cover/frontmatter/bodymatter/backmatter definitions) -->
             
             <zeroOrMore>
@@ -663,13 +648,23 @@
             </list>
         </attribute>
         <ref name="attrsrqd.notype"/>
+        <element name="section">
+            <attribute name="class">
+                <list>
+                    <ref name="classes"/>
+                    <value>frontcover</value>
+                    <ref name="classes"/>
+                </list>
+            </attribute>
+            <ref name="attrsrqd.noclass"/>
+            <ref name="level2.content.noattrs"/>
+        </element>
         <zeroOrMore>
             <element name="section">
                 <attribute name="class">
                     <list>
                         <ref name="classes"/>
                         <choice>
-                            <value>frontcover</value>
                             <value>rearcover</value>
                             <value>leftflap</value>
                             <value>rightflap</value>
@@ -679,7 +674,7 @@
                 </attribute>
                 <ref name="attrsrqd.noclass"/>
                 <ref name="level2.content.noattrs"/>
-           </element>
+            </element>
         </zeroOrMore>
     </define>
     
@@ -710,7 +705,7 @@
             </choice>
         </attribute>
         <choice>
-            <ref name="level1.only-headline"/>
+            <ref name="level1.only-headline"/> <!-- allowed for titlepage (and similar) -->
             <ref name="level1.content"/>
         </choice>
     </define>
@@ -776,7 +771,7 @@
                 </attribute>
                 <choice>
                     <ref name="level1.only-headline"/>
-                    <ref name="level1.content"/>
+                    <ref name="level1.content-part"/>
                 </choice>
             </group>
         </choice>
@@ -809,10 +804,7 @@
                 </list>
             </choice>
         </attribute>
-        <choice>
-            <ref name="level1.only-headline"/>
-            <ref name="level1.content"/>
-        </choice>
+        <ref name="level1.content"/>
     </define>
     <define name="backmatter.types">
         <optional>
@@ -823,15 +815,9 @@
     <!-- ============ Hierarchic Structure (6 levels deep) ============ -->
     
     <define name="level1">
-        <choice>
-            <element name="section">
-                <ref name="level1.content"/>
-            </element>
-            <element name="article">
-                <!-- "article" should be used for magazine or newspaper articles. Otherwise, "section" should be used. -->
-                <ref name="level1.content"/>
-            </element>
-        </choice>
+        <element name="section">
+            <ref name="level1.content"/>
+        </element>
     </define>
     <define name="level1.content">
         <ref name="attlist.level1"/>
@@ -840,26 +826,69 @@
                 <ref name="h1"/> <!-- h1 -->
                 <oneOrMore>
                     <choice>
-                        <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                        <ref name="level2"/> <!-- section, article -->
+                        <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                        <ref name="level2"/> <!-- section -->
                     </choice>
                 </oneOrMore>
             </group>
             <group>
                 <oneOrMore>
                     <choice>
-                        <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                        <ref name="level2"/> <!-- section, article -->
+                        <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                        <ref name="level2"/> <!-- section -->
                     </choice>
                 </oneOrMore>
                 <optional>
                     <ref name="h1"/> <!-- h1 -->
                     <oneOrMore>
                         <choice>
-                            <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                            <ref name="level2"/> <!-- section, article -->
+                            <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                            <ref name="level2"/> <!-- section -->
                         </choice>
                     </oneOrMore>
+                </optional>
+            </group>
+        </choice>
+    </define>
+    <define name="level1.content-part">
+        <ref name="attlist.level1"/>
+        <choice>
+            <group>
+                <ref name="h1"/> <!-- h1 -->
+                <choice>
+                    <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                    <ref name="level2"/> <!-- section -->
+                </choice>
+                <zeroOrMore>
+                    <choice>
+                        <ref name="continuation"/> <!-- div -->
+                        <ref name="level2"/> <!-- section -->
+                    </choice>
+                </zeroOrMore>
+            </group>
+            <group>
+                <choice>
+                    <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                    <ref name="level2"/> <!-- section -->
+                </choice>
+                <zeroOrMore>
+                    <choice>
+                        <ref name="continuation"/> <!-- div -->
+                        <ref name="level2"/> <!-- section -->
+                    </choice>
+                </zeroOrMore>
+                <optional>
+                    <ref name="h1"/> <!-- h1 -->
+                    <choice>
+                        <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                        <ref name="level2"/> <!-- section -->
+                    </choice>
+                    <zeroOrMore>
+                        <choice>
+                            <ref name="continuation"/> <!-- div -->
+                            <ref name="level2"/> <!-- section -->
+                        </choice>
+                    </zeroOrMore>
                 </optional>
             </group>
         </choice>
@@ -876,16 +905,37 @@
         <ref name="h1"/> <!-- h1 -->
     </define>
     
+    <define name="continuation">
+        <element name="div">
+            <element name="a">
+                <attribute name="epub:type">
+                    <list>
+                        <ref name="types"/>
+                        <value>z3998:continuation-of</value>
+                        <ref name="types"/>
+                    </list>
+                </attribute>
+                <attribute name="hidden">
+                    <empty/>
+                </attribute>
+                <attribute name="href">
+                    <ref name="URI"/> <!-- link to the section element that this is a continuation of -->
+                </attribute>
+            </element>
+        </element>
+        <zeroOrMore>
+            <ref name="pagebreak.block"/> <!-- a, samp, kbd, span -->
+        </zeroOrMore>
+        <optional>
+            <ref name="h2"/> <!-- optional continuation headline -->
+        </optional>
+        <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+    </define>
+    
     <define name="level2">
-        <choice>
-            <element name="section">
-                <ref name="level2.content"/>
-            </element>
-            <element name="article">
-                <!-- "article" should be used for magazine or newspaper articles. Otherwise, "section" should be used. -->
-                <ref name="level2.content"/>
-            </element>
-        </choice>
+        <element name="section">
+            <ref name="level2.content"/>
+        </element>
     </define>
     <define name="level2.content">
         <ref name="attlist.level2"/>
@@ -897,24 +947,24 @@
                 <ref name="h2"/> <!-- h2 -->
                 <oneOrMore>
                     <choice>
-                        <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                        <ref name="level3"/> <!-- section, article -->
+                        <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                        <ref name="level3"/> <!-- section -->
                     </choice>
                 </oneOrMore>
             </group>
             <group>
                 <oneOrMore>
                     <choice>
-                        <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                        <ref name="level3"/> <!-- section, article -->
+                        <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                        <ref name="level3"/> <!-- section -->
                     </choice>
                 </oneOrMore>
                 <optional>
                     <ref name="h2"/> <!-- h2 -->
                     <oneOrMore>
                         <choice>
-                            <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                            <ref name="level3"/> <!-- section, article -->
+                            <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                            <ref name="level3"/> <!-- section -->
                         </choice>
                     </oneOrMore>
                 </optional>
@@ -937,15 +987,9 @@
     </define>
     
     <define name="level3">
-        <choice>
-            <element name="section">
-                <ref name="level3.content"/>
-            </element>
-            <element name="article">
-                <!-- "article" should be used for magazine or newspaper articles. Otherwise, "section" should be used. -->
-                <ref name="level3.content"/>
-            </element>
-        </choice>
+        <element name="section">
+            <ref name="level3.content"/>
+        </element>
     </define>
     <define name="level3.content">
         <ref name="attlist.level3"/>
@@ -954,24 +998,24 @@
                 <ref name="h3"/> <!-- h3 -->
                 <oneOrMore>
                     <choice>
-                        <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                        <ref name="level4"/> <!-- section, article -->
+                        <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                        <ref name="level4"/> <!-- section -->
                     </choice>
                 </oneOrMore>
             </group>
             <group>
                 <oneOrMore>
                     <choice>
-                        <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                        <ref name="level4"/> <!-- section, article -->
+                        <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                        <ref name="level4"/> <!-- section -->
                     </choice>
                 </oneOrMore>
                 <optional>
                     <ref name="h3"/> <!-- h3 -->
                     <oneOrMore>
                         <choice>
-                            <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                            <ref name="level4"/> <!-- section, article -->
+                            <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                            <ref name="level4"/> <!-- section -->
                         </choice>
                     </oneOrMore>
                 </optional>
@@ -994,15 +1038,9 @@
     </define>
     
     <define name="level4">
-        <choice>
-            <element name="section">
-                <ref name="level4.content"/>
-            </element>
-            <element name="article">
-                <!-- "article" should be used for magazine or newspaper articles. Otherwise, "section" should be used. -->
-                <ref name="level4.content"/>
-            </element>
-        </choice>
+        <element name="section">
+            <ref name="level4.content"/>
+        </element>
     </define>
     <define name="level4.content">
         <ref name="attlist.level4"/>
@@ -1011,24 +1049,24 @@
                 <ref name="h4"/> <!-- h4 -->
                 <oneOrMore>
                     <choice>
-                        <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                        <ref name="level5"/> <!-- section, article -->
+                        <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                        <ref name="level5"/> <!-- section -->
                     </choice>
                 </oneOrMore>
             </group>
             <group>
                 <oneOrMore>
                     <choice>
-                        <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                        <ref name="level5"/> <!-- section, article -->
+                        <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                        <ref name="level5"/> <!-- section -->
                     </choice>
                 </oneOrMore>
                 <optional>
                     <ref name="h4"/> <!-- h4 -->
                     <oneOrMore>
                         <choice>
-                            <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                            <ref name="level5"/> <!-- section, article -->
+                            <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                            <ref name="level5"/> <!-- section -->
                         </choice>
                     </oneOrMore>
                 </optional>
@@ -1051,15 +1089,9 @@
     </define>
     
     <define name="level5">
-        <choice>
-            <element name="section">
-                <ref name="level5.content"/>
-            </element>
-            <element name="article">
-                <!-- "article" should be used for magazine or newspaper articles. Otherwise, "section" should be used. -->
-                <ref name="level5.content"/>
-            </element>
-        </choice>
+        <element name="section">
+            <ref name="level5.content"/>
+        </element>
     </define>
     <define name="level5.content">
         <ref name="attlist.level5"/>
@@ -1068,24 +1100,24 @@
                 <ref name="h5"/> <!-- h5 -->
                 <oneOrMore>
                     <choice>
-                        <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                        <ref name="level6"/> <!-- section, article -->
+                        <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                        <ref name="level6"/> <!-- section -->
                     </choice>
                 </oneOrMore>
             </group>
             <group>
                 <oneOrMore>
                     <choice>
-                        <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                        <ref name="level6"/> <!-- section, article -->
+                        <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                        <ref name="level6"/> <!-- section -->
                     </choice>
                 </oneOrMore>
                 <optional>
                     <ref name="h5"/> <!-- h5 -->
                     <oneOrMore>
                         <choice>
-                            <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                            <ref name="level6"/> <!-- section, article -->
+                            <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                            <ref name="level6"/> <!-- section -->
                         </choice>
                     </oneOrMore>
                 </optional>
@@ -1108,15 +1140,9 @@
     </define>
     
     <define name="level6">
-        <choice>
-            <element name="section">
-                <ref name="level6.content"/>
-            </element>
-            <element name="article">
-                <!-- "article" should be used for magazine or newspaper articles. Otherwise, "section" should be used. -->
-                <ref name="level6.content"/>
-            </element>
-        </choice>
+        <element name="section">
+            <ref name="level6.content"/>
+        </element>
     </define>
     <define name="level6.content">
         <ref name="attlist.level6"/>
@@ -1125,24 +1151,24 @@
                 <ref name="h6"/> <!-- h6 -->
                 <oneOrMore>
                     <choice>
-                        <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                        <ref name="level6"/> <!-- section, article -->
+                        <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                        <ref name="level6"/> <!-- section -->
                     </choice>
                 </oneOrMore>
             </group>
             <group>
                 <oneOrMore>
                     <choice>
-                        <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                        <ref name="level6"/> <!-- section, article -->
+                        <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                        <ref name="level6"/> <!-- section -->
                     </choice>
                 </oneOrMore>
                 <optional>
                     <ref name="h6"/> <!-- h6 -->
                     <oneOrMore>
                         <choice>
-                            <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
-                            <ref name="level6"/> <!-- section, article -->
+                            <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                            <ref name="level6"/> <!-- section -->
                         </choice>
                     </oneOrMore>
                 </optional>
@@ -1505,7 +1531,7 @@
             <!-- STRICT NOTE: there has to be at least one child inside div. Text content is not allowed; text has to be wrapped in one of the inline elements. -->
             <ref name="attlist.div"/>
             <oneOrMore>
-                <ref name="docblockorinline"/> <!-- h1, p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
             </oneOrMore>
         </element>
     </define>
@@ -2297,7 +2323,7 @@
     </define>
     <define name="attlist.bdo" combine="interleave">
         <ref name="coreattrs"/>
-        <ref name="i18n"/>
+        <ref name="i18n.optional"/>
     </define>
     
     <!-- =================== Inline Sentence and Word =================== -->
@@ -3764,8 +3790,8 @@
                 <value>z3998:compound</value>
                 <value>z3998:concluding-sentence</value>
                 <!--<value>z3998:conclusion</value>-->
-                <value>z3998:continuation</value>
-                <value>z3998:continuation-of</value>
+                <!--<value>z3998:continuation</value>-->
+                <!--<value>z3998:continuation-of</value>-->
                 <value>z3998:contributors</value>
                 <value>z3998:coordinate</value>
                 <value>z3998:correction</value>

@@ -37,10 +37,10 @@
     <!-- vurderer å fjerne dd, kan fjerne flere ting etter behov senere -->
     <pattern id="nlbpub_9">
         <p class="title">Rule 9: Disallow empty elements (with a few exceptions)</p>
-        <p>The only elements that can be empty are the elements img, br, meta, link, col, th, td, dd, hr, script, and also any element with the epub:type "pagebreak".</p>
+        <p>The only elements that can be empty are the elements img, br, meta, link, col, th, td, dd, hr, script, and also any element with the epub:type "pagebreak" or "z3998:continuation-of".</p>
         <rule context="html:*">
             <report
-                test="normalize-space(.)='' and not(*) and not(self::html:img or self::html:br or self::html:meta or self::html:link or self::html:col or self::html:th or self::html:td or self::html:dd or self::html:*[tokenize(@epub:type,'\s+')='pagebreak'] or self::html:hr or self::html:script)"
+                test="normalize-space(.)='' and not(*) and not(self::html:img or self::html:br or self::html:meta or self::html:link or self::html:col or self::html:th or self::html:td or self::html:dd or self::html:*[tokenize(@epub:type,'\s+')=('pagebreak','z3998:continuation-of')] or self::html:hr or self::html:script)"
                 >[nordic09] Element may not be empty: <value-of select="concat('&lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&quot;',$a,'&quot;'),''),'&gt;')"/></report>
         </rule>
     </pattern>
@@ -505,7 +505,7 @@
     <!-- Rule 201: cover, frontmatter, bodymatter and backmatter -->
     <pattern id="nlbpub_201">
         <rule context="html:*[tokenize(@epub:type,'\s+')=('cover','frontmatter','bodymatter','backmatter')]">
-            <report test="count(for $t in (tokenize(@epub:type,'\s+')) return if $t=('cover','frontmatter','bodymatter','backmatter') then $t else ()) gt 1">[nordic201] cover, frontmatter, bodymatter and backmatter
+            <report test="count(for $t in (tokenize(@epub:type,'\s+')) return if ($t=('cover','frontmatter','bodymatter','backmatter')) then $t else ()) gt 1">[nordic201] cover, frontmatter, bodymatter and backmatter
                 cannot be used together on the same element: <value-of select="concat('&lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&quot;',$a,'&quot;'),''),'&gt;')"/></report>
         </rule>
     </pattern>
@@ -837,7 +837,7 @@
     <pattern id="nlbpub_268">
         <rule context="html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6">
             <let name="sectioning-element" value="ancestor::*[self::html:section or self::html:article or self::html:aside or self::html:nav or self::html:body][1]"/>
-            <let name="this-level" value="xs:integer(replace(name(),'.*(\d)$','$1')) + (if (ancestor::html:header[parent::html:body]) then -1 else 0)"/>
+            <let name="this-level" value="xs:integer(replace(name(),'.*(\d)$','$1')) + (if ((preceding-sibling::html:section[1]/following-sibling::html:div intersect preceding-sibling::html:div)[not(tokenize(@epub:type,'\s+') = 'pagebreak')][last()]/html:a/tokenize(@epub:type,'\s+') = 'z3998:continuation-of') then -1 else 0)"/>
             <let name="child-sectioning-elements"
                 value="$sectioning-element//*[self::html:section or self::html:article or self::html:aside or self::html:nav or self::html:figure][ancestor::*[self::html:section or self::html:article or self::html:aside or self::html:nav or self::html:body][1] intersect $sectioning-element]"/>
             <let name="child-sectioning-element-with-wrong-level"
@@ -856,7 +856,7 @@
 
     <pattern id="nlbpub_269">
         <rule context="html:body">
-            <let name="filename-regex" value="'^.*/[A-Za-z0-9_-]+\.xhtml$'"/>
+            <let name="filename-regex" value="'^.*/[A-Za-z0-9_-]+\.x?html$'"/>
             <assert test="matches(base-uri(.), $filename-regex)">[nordic269] Only alphanumeric characters or "_" or "-" are allowed as part of the filename: <value-of
                     select="concat('&lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&quot;',$a,'&quot;'),''),'&gt;')"/></assert>
         </rule>
@@ -977,7 +977,7 @@
                 in <value-of select="replace(base-uri(.),'^.*/','')"/> and compare with pagebreak with title="<value-of select="$preceding-pagebreak/@title"/>" in <value-of
                     select="replace(base-uri($preceding-pagebreak),'^.*/','')"/>)</report>
             <assert test="number(@title) gt number($preceding-pagebreak/@title)">[nordic_opf_and_html_23] pagebreak values must increase for pagebreaks with class="page-normal" (see pagebreak with
-                title="<value-of select="@title"/>" in <value-of select="replace(base-uri(.),'^.*/','')"/> and compare with pagebreak with title="<value-of select="$preceding/@title"/> in
+                title="<value-of select="@title"/>" in <value-of select="replace(base-uri(.),'^.*/','')"/> and compare with pagebreak with title="<value-of select="$preceding-pagebreak/@title"/> in
                 <value-of select="replace(base-uri($preceding-pagebreak),'^.*/','')"/>)</assert>
         </rule>
     </pattern>
@@ -1001,5 +1001,7 @@
             <report test="@tabindex and count(//html:a/@tabindex=@tabindex)!=1">[nordic_opf_and_html_276] The tabindex attribute value is not unique within the publication.</report>
         </rule>
     </pattern>
+    
+    <!-- TODO: check that all epub:type values are in a namespace defined in @epub:prefix -->
 
 </schema>
