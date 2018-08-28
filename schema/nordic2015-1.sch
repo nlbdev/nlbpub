@@ -86,16 +86,6 @@
         </rule>
     </pattern>
 
-    <!-- Rule 14:  Don't allow <h x+1> in section w/depth x+1 unless <h x> in section w/depth x is present -->
-    <pattern id="nlbpub_14">
-        <rule
-            context="html:*[self::html:section or self::html:article][not(tokenize(@epub:type,'\s+')='cover')][html:section[not(tokenize(@epub:type,'\t+')=('z3998:poem','z3998:verse'))]|html:article]">
-            <assert test="html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6">[nordic14] sectioning element with no headline (h1-h6) when sub-section is present (is only allowed for sectioning
-                element with epub:type="cover" or when sub-section is a poem): <value-of
-                    select="concat('&lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&quot;',$a,'&quot;'),''),'&gt;')"/></assert>
-        </rule>
-    </pattern>
-
     <!--
         imprimatur: lydbokavtalen
         imprint: informasjon om den trykte boka og lydboka
@@ -1003,5 +993,11 @@
     </pattern>
     
     <!-- TODO: check that all epub:type values are in a namespace defined in @epub:prefix -->
+    
+    <pattern id="nlb_TODO">
+        <rule context="html:*[matches(local-name(),'h\d')]">
+            <assert test="xs:integer(substring-after(local-name(),'h')) = min((count(ancestor::html:section), 6))">[nlb_TODO] The current headline level must be one more than its parent level, unless the parent level is level 6. The first level must be level 1.</assert>
+        </rule>
+    </pattern>
 
 </schema>
