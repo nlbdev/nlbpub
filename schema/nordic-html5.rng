@@ -52,17 +52,6 @@
     
     <!-- ======================== Content Models ======================== -->
     
-    <define name="htmlblocknoimggroup">
-        <choice>
-            <ref name="author.block"/> <!-- p -->
-            <ref name="prodnote"/> <!-- aside -->
-            <ref name="sidebar"/> <!-- section -->
-            <ref name="note"/> <!-- aside -->
-            <ref name="annotation"/> <!-- aside -->
-        </choice>
-    </define>
-    <!-- block elements unique to html without imggroup. -->
-    
     <define name="inlineinblock">
         <choice>
             <ref name="a"/> <!-- a -->
@@ -75,49 +64,18 @@
     <!-- inlines that may alternatively be in block elements. -->
     
     <define name="block">
+        <!-- TODO: se gjennom alt under block -->
         <choice>
-            <ref name="p"/> <!-- p, ul, ol, dl, span -->
-            <ref name="pre"/> <!-- pre -->
-            <ref name="list"/> <!-- ol, ul -->
-            <ref name="dl"/> <!-- dl, span -->
-            <ref name="div"/> <!-- div -->
-            <ref name="blockquote"/> <!-- blockquote -->
+            <ref name="blocknoimggroupnotable"/>
             <ref name="img"/> <!-- img -->
             <ref name="figure.imggroup"/> <!-- figure -->
-            <ref name="poem"/> <!-- section -->
-            <ref name="linegroup"/> <!-- section, div -->
-            <ref name="byline"/> <!-- span -->
-            <ref name="dateline"/> <!-- span -->
-            <ref name="epigraph"/> <!-- p -->
             <ref name="table"/> <!-- table -->
-            <ref name="address"/> <!-- address -->
-            <ref name="line"/> <!-- p -->
-            <ref name="htmlblocknoimggroup"/> <!-- span, aside, section -->
-        </choice>
-    </define>
-    
-    <define name="blocknoimggroup">
-        <choice>
-            <ref name="p"/> <!-- p, ul, ol, dl, span -->
-            <ref name="pre"/> <!-- pre -->
-            <ref name="list"/> <!-- ol, ul -->
-            <ref name="dl"/> <!-- dl, span -->
-            <ref name="div"/> <!-- div -->
-            <ref name="blockquote"/> <!-- blockquote -->
-            <ref name="poem"/> <!-- section -->
-            <ref name="linegroup"/> <!-- section, div -->
-            <ref name="byline"/> <!-- span -->
-            <ref name="dateline"/> <!-- span -->
-            <ref name="epigraph"/> <!-- p -->
-            <ref name="table"/> <!-- table -->
-            <ref name="address"/> <!-- address -->
-            <ref name="line"/> <!-- p -->
-            <ref name="htmlblocknoimggroup"/> <!-- span, aside, section -->
         </choice>
     </define>
     
     <define name="blocknoimggroupnotable">
         <choice>
+            <ref name="pagebreak.block"/> <!-- div -->
             <ref name="p"/> <!-- p, ul, ol, dl, span -->
             <ref name="pre"/> <!-- pre -->
             <ref name="list"/> <!-- ol, ul -->
@@ -131,23 +89,14 @@
             <ref name="epigraph"/> <!-- p -->
             <ref name="address"/> <!-- address -->
             <ref name="line"/> <!-- p -->
-            <ref name="htmlblocknoimggroup"/> <!-- span, aside, section -->
+            <ref name="author.block"/> <!-- p -->
+            <ref name="prodnote"/> <!-- aside -->
+            <ref name="sidebar"/> <!-- section -->
+            <ref name="note"/> <!-- aside -->
+            <ref name="annotation"/> <!-- aside -->
         </choice>
     </define>
 
-    <define name="docblockorinline">
-        <choice>
-            <ref name="doctitle"/> <!-- p -->
-            <ref name="covertitle"/> <!-- p -->
-            <ref name="docauthor"/> <!-- p -->
-            <!-- covertitle used in html/head/title when doctitle is not present -->
-            <ref name="bridgehead"/> <!-- p -->
-            <ref name="block"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section -->
-            <ref name="pagebreak.block"/> <!-- a, samp, kbd, span -->
-        </choice>
-    </define>
-    <!-- common non-head elements for use with sectioning elements -->
-    
     <!-- ========================= Generic Attributes ========================== -->
     
     <define name="attr.id">
@@ -615,7 +564,7 @@
                 <element name="section">
                     <ref name="backmatter"/>
                 </element>
-            </zeroOrMore> <!-- TODO: vi har sett på section-elementene; se videre på ting inni neste gang -->
+            </zeroOrMore>
             
             <!-- (attributes and content is defined by cover/frontmatter/bodymatter/backmatter definitions) -->
             
@@ -647,23 +596,45 @@
             <ref name="attrsrqd.noclass"/>
             <ref name="section.content.noattrs"/>
         </element>
-        <zeroOrMore>
+        <optional>
             <element name="section">
                 <attribute name="class">
                     <list>
                         <ref name="classes"/>
-                        <choice>
-                            <value>rearcover</value>
-                            <value>leftflap</value>
-                            <value>rightflap</value>
-                        </choice>
+                        <value>leftflap</value>
                         <ref name="classes"/>
                     </list>
                 </attribute>
                 <ref name="attrsrqd.noclass"/>
                 <ref name="section.content.noattrs"/>
             </element>
-        </zeroOrMore>
+        </optional>
+        <optional>
+            <element name="section">
+                <attribute name="class">
+                    <list>
+                        <ref name="classes"/>
+                        <value>rightflap</value>
+                        <ref name="classes"/>
+                    </list>
+                </attribute>
+                <ref name="attrsrqd.noclass"/>
+                <ref name="section.content.noattrs"/>
+            </element>
+        </optional>
+        <optional>
+            <element name="section">
+                <attribute name="class">
+                    <list>
+                        <ref name="classes"/>
+                        <value>rearcover</value>
+                        <ref name="classes"/>
+                    </list>
+                </attribute>
+                <ref name="attrsrqd.noclass"/>
+                <ref name="section.content.noattrs"/>
+            </element>
+        </optional>
     </define>
     
     <!--
@@ -721,12 +692,12 @@
                             <ref name="types"/>
                             <value>bodymatter</value>
                             <ref name="types"/>
-                            <ref name="bodymatter.types"/>
+                            <ref name="types.sectioning"/>
                             <ref name="types"/>
                         </list>
                         <list>
                             <ref name="types"/>
-                            <ref name="bodymatter.types"/>
+                            <ref name="types.sectioning"/>
                             <ref name="types"/>
                             <value>bodymatter</value>
                             <ref name="types"/>
@@ -756,9 +727,6 @@
             </group>
         </choice>
         <ref name="section.content.notype"/>
-    </define>
-    <define name="bodymatter.types">
-        <ref name="types.sectioning"/>
     </define>
     
     <!--
@@ -797,7 +765,9 @@
     
     <define name="section.content-choice">
         <choice>
-            <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+            <!-- For production purposes, we could allow <hx epub:type="bridgehead"> here. But not for ordering. -->
+            
+            <ref name="block"/>
             <element name="section">
                 <ref name="section.content"/>
             </element>
@@ -862,33 +832,6 @@
             </attribute>
         </optional>
         <ref name="attrsrqd.notype"/> <!-- attrsrqd instead of attrs because all sectioning elements should have id attributes -->
-    </define>
-    
-    <define name="continuation"> <!-- TODO: se videre på denne -->
-        <element name="div">
-            <element name="a">
-                <attribute name="epub:type">
-                    <list>
-                        <ref name="types"/>
-                        <value>z3998:continuation-of</value>
-                        <ref name="types"/>
-                    </list>
-                </attribute>
-                <attribute name="hidden">
-                    <empty/>
-                </attribute>
-                <attribute name="href">
-                    <ref name="URI"/> <!-- link to the section element that this is a continuation of -->
-                </attribute>
-            </element>
-        </element>
-        <zeroOrMore>
-            <ref name="pagebreak.block"/> <!-- a, samp, kbd, span -->
-        </zeroOrMore>
-        <optional>
-            <ref name="hx"/> <!-- optional continuation headline -->
-        </optional>
-        <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
     </define>
     
     <!-- ============================= Text Markup ============================= -->
@@ -1050,82 +993,30 @@
     <!-- =================== Flow (Block or Inline) Entities =================== -->
     
     <define name="flow">
+        <!-- TODO: lage regler i schematron for hvor table og imggroup bør forbys, etter refaktorering er det nå tillatt overalt hvor det er flow -->
         <choice>
-            <zeroOrMore>
+            <oneOrMore>
                 <ref name="inlinenoprodnote"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
-            </zeroOrMore>
-            <zeroOrMore>
-                <choice>
-                    <ref name="blocknoimggroup"/> <!-- p, ol, ul, dl, div, blockquote, table, address, span, section -->
-                    
-                    <!-- STRICT NOTE: "figure" is not allowed in HTML as inline content so it is not included in "inlinenoprodnote". We explicitly include it here instead. -->
-                    <ref name="figure.imggroup"/>
-                </choice>
-            </zeroOrMore>
+            </oneOrMore>
+            <oneOrMore>
+                <ref name="block"/>
+            </oneOrMore>
         </choice>
     </define>
     <!-- flow elements add inlinenoprodnote to block -->
     
-    <define name="flowtd">
-        <choice>
-            <group>
-                <zeroOrMore>
-                    <ref name="inlinenoprodnote"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
-                </zeroOrMore>
-            </group>
-            <group>
-                <zeroOrMore>
-                    <choice>
-                        <ref name="blocknoimggroup"/> <!-- p, ol, ul, dl, div, blockquote, table, address, span, section -->
-                        
-                        <!-- STRICT NOTE: "figure" is not allowed in HTML as inline content so it is not included in "inlinenoprodnote". We explicitly include it here instead. -->
-                        <ref name="figure.imggroup"/>
-                    </choice>
-                </zeroOrMore>
-                <optional>
-                    <ref name="pagebreak.block"/> <!-- div -->
-                </optional>
-            </group>
-        </choice>
-    </define>
-    <!--
-      flowtd ideally excludes pagebreak other than at the end of the content, although
-      it can get in indirectly through elements of %blocknoimggroup;
-    -->
-    
-    <define name="flownotable">
-        <choice>
-            <zeroOrMore>
-                <ref name="inlinenoprodnote"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
-            </zeroOrMore>
-            <zeroOrMore>
-                <choice>
-                    <ref name="blocknoimggroupnotable"/> <!-- p, ol, ul, dl, div, blockquote, address, span, section -->
-                    
-                    <!-- STRICT NOTE: "figure" is not allowed in HTML as inline content so it is not included in "inlinenoprodnote". We explicitly include it here instead. -->
-                    <ref name="figure.imggroup"/>
-                </choice>
-            </zeroOrMore>
-        </choice>
-    </define>
     <define name="flowlic">
         <choice>
-            <zeroOrMore>
+            <oneOrMore>
                 <choice>
                     <ref name="inlinenoprodnote"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
                     <ref name="lic"/> <!-- span -->
                     <ref name="list"/> <!-- ol, ul -->
                 </choice>
-            </zeroOrMore>
-            <zeroOrMore>
-                <choice>
-                    <ref name="blocknoimggroup"/> <!-- p, ol, ul, dl, div, blockquote, table, address, span, section -->
-                    <ref name="pagebreak.block"/> <!-- div -->
-                    
-                    <!-- STRICT NOTE: "figure" is not allowed in HTML as inline content so it is not included in "inlinenoprodnote". We explicitly include it here instead. -->
-                    <ref name="figure.imggroup"/>
-                </choice>
-            </zeroOrMore>
+            </oneOrMore>
+            <oneOrMore>
+                <ref name="block"/>
+            </oneOrMore>
         </choice>
     </define>
     
@@ -1232,7 +1123,7 @@
             <!-- STRICT NOTE: there has to be at least one child inside div. Text content is not allowed; text has to be wrapped in one of the inline elements. -->
             <ref name="attlist.div"/>
             <oneOrMore>
-                <ref name="docblockorinline"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section, a, samp, kbd -->
+                <ref name="block"/>
             </oneOrMore>
         </element>
     </define>
@@ -1332,7 +1223,7 @@
             <!-- HTML content model: (a | abbr | address | article | aside | audio | b | bdi | bdo | blockquote | br | button | canvas | cite | code | data | datalist | del | details | dfn | dialog | div | dl | em | embed | fieldset | figure | footer | form | h1 | h2 | h3 | h4 | h5 | h6 | header | hr | i | iframe | img | input | ins | kbd | keygen | label | link | main | map | mark | math | menu | meta | meter | nav | noscript | object | ol | output | p | pre | progress | q | ruby | s | samp | script | section | select | small | span | strong | style | sub | sup | svg | table | template | textarea | time | u | ul | var | video | wbr | (text))* -->
             <!-- Strict content model: (em | strong | dfn | code | samp | kbd | abbr | a | img | figure | br | q | sub | sup | span | bdo | p | ol | ul | dl | div | blockquote | table | address | (text))* -->
             <ref name="attlist.prodnote"/>
-            <ref name="flow"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, figure, br, q, sub, sup, span, bdo, p, ol, ul, dl, div, blockquote, table, address, section, (text) -->
+            <ref name="flow"/>
         </element>
     </define>
     <define name="attlist.prodnote" combine="interleave">
@@ -1388,7 +1279,6 @@
                 <ref name="flow"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, figure, br, q, sub, sup, span, bdo, p, ol, ul, dl, div, blockquote, table, address, section, (text) -->
             </element>
         </choice>
-
     </define>
     <define name="attlist.sidebar" combine="interleave">
         <attribute name="epub:type">
@@ -1417,17 +1307,7 @@
             <!-- HTML content model: (a | abbr | address | article | aside | audio | b | bdi | bdo | blockquote | br | button | canvas | cite | code | data | datalist | del | details | dfn | dialog | div | dl | em | embed | fieldset | figure | footer | form | h1 | h2 | h3 | h4 | h5 | h6 | header | hr | i | iframe | img | input | ins | kbd | keygen | label | link | main | map | mark | math | menu | meta | meter | nav | noscript | object | ol | output | p | pre | progress | q | ruby | s | samp | script | section | select | small | span | strong | style | sub | sup | svg | table | template | textarea | time | u | ul | var | video | wbr | (text))* -->
             <!-- Strict content model: (p | ol | ul | dl | div | blockquote | img | figure | table | address | span | aside | section | a | samp | kbd)+ -->
             <ref name="attlist.note"/>
-            <choice>
-                <oneOrMore>
-                    <choice>
-                        <ref name="block"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section -->
-                        <ref name="pagebreak.block"/> <!-- div -->
-                    </choice>
-                </oneOrMore>
-                <oneOrMore>
-                    <ref name="inlineinblock"/> <!-- a, samp, kbd, span -->
-                </oneOrMore>
-            </choice>
+            <ref name="flow"/>
         </element>
     </define>
     <define name="attlist.note" combine="interleave">
@@ -1460,17 +1340,7 @@
             <!-- HTML content model: (a | abbr | address | article | aside | audio | b | bdi | bdo | blockquote | br | button | canvas | cite | code | data | datalist | del | details | dfn | dialog | div | dl | em | embed | fieldset | figure | footer | form | h1 | h2 | h3 | h4 | h5 | h6 | header | hr | i | iframe | img | input | ins | kbd | keygen | label | link | main | map | mark | math | menu | meta | meter | nav | noscript | object | ol | output | p | pre | progress | q | ruby | s | samp | script | section | select | small | span | strong | style | sub | sup | svg | table | template | textarea | time | u | ul | var | video | wbr | (text))* -->
             <!-- Strict content model: (p | ol | ul | dl | div | blockquote | img | figure | table | address | span | aside | section | a | samp | kbd)+ -->
             <ref name="attlist.annotation"/>
-            <choice>
-                <oneOrMore>
-                    <choice>
-                        <ref name="block"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section -->
-                        <ref name="pagebreak.block"/> <!-- div -->
-                    </choice>
-                </oneOrMore>
-                <oneOrMore>
-                    <ref name="inlineinblock"/> <!-- a, samp, kbd, span -->
-                </oneOrMore>
-            </choice>
+            <ref name="flow"/>
         </element>
     </define>
     <define name="attlist.annotation" combine="interleave">
@@ -2396,21 +2266,8 @@
     
     <define name="caption.figure">
         <element name="figcaption">
-            <!-- STRICT NOTE: In DTBook, captions and images can appear in any order. In HTML5, the figcaption has to occur at the beginning or end of an imggroup. When transforming a DTBook with multiple captions in the same imggroup to HTML5, each caption will be wrapped in separate div elements inside the figcaption. If some images have captions and some don’t, then the empty captions should be represented as empty <div class=”caption”/> elements. This allows for proper conversion back to DTBook, as well as the ability to visually associate the captions and images using CSS. -->
-            <choice>
-                <group>
-                    <ref name="attlist.figcaption"/>
-                    <ref name="flow"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, figure, br, q, sub, sup, span, bdo, p, ol, ul, dl, div, blockquote, table, address, section, (text) -->
-                </group>
-                <group>
-                    <oneOrMore>
-                        <element name="div">
-                            <ref name="attlist.figcaption"/>
-                            <ref name="flow"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, figure, br, q, sub, sup, span, bdo, p, ol, ul, dl, div, blockquote, table, address, section, (text) -->
-                        </element>
-                    </oneOrMore>
-                </group>
-            </choice>
+            <ref name="attlist.figcaption"/>
+            <ref name="flow"/>
         </element>
     </define>
     <define name="attlist.figcaption" combine="interleave">
@@ -2456,94 +2313,7 @@
         <ref name="attrs"/>
     </define>
     
-    <!-- =========== Doctitle, Docauthor, Covertitle, and Headings  ============ -->
-    
-    <!--
-    Use: doctitle marks the full title of the book, including any subtitles.
-  -->
-    <define name="doctitle">
-        <element name="p">
-            <ref name="attlist.doctitle"/>
-            <zeroOrMore>
-                <ref name="inline"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
-            </zeroOrMore>
-        </element>
-    </define>
-    <define name="doctitle.headline">
-        <element name="h1">
-            <ref name="attlist.doctitle"/>
-            <zeroOrMore>
-                <ref name="inline"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
-            </zeroOrMore>
-        </element>
-    </define>
-    <define name="attlist.doctitle" combine="interleave">
-        <attribute name="epub:type">
-            <list>
-                <ref name="types"/>
-                <value>fulltitle</value>
-                <ref name="types"/>
-            </list>
-        </attribute>
-        <attribute name="class">
-            <list>
-                <ref name="classes"/>
-                <value>title</value>
-                <ref name="classes"/>
-            </list>
-        </attribute>
-        <ref name="attrs.base"/>
-    </define>
-    
-    <!--
-    Use: docauthor marks each author or editor of this work.
-  -->
-    <define name="docauthor">
-        <element name="p">
-            <ref name="attlist.docauthor"/>
-            <zeroOrMore>
-                <ref name="inline"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
-            </zeroOrMore>
-        </element>
-    </define>
-    <define name="attlist.docauthor" combine="interleave">
-        <attribute name="epub:type">
-            <list>
-                <ref name="types"/>
-                <value>z3998:author</value>
-                <ref name="types"/>
-            </list>
-        </attribute>
-        <attribute name="class">
-            <list>
-                <ref name="classes"/>
-                <value>docauthor</value>
-                <ref name="classes"/>
-            </list>
-        </attribute>
-        <ref name="attrs.base"/>
-    </define>
-    
-    <!--
-    Use: covertitle is the short title of a book, often found on the
-    spine. It may be the same as the doctitle.
-  -->
-    <define name="covertitle">
-        <element name="p">
-            <ref name="attlist.covertitle"/>
-            <text/>
-        </element>
-    </define>
-    <define name="attlist.covertitle" combine="interleave">
-        <attribute name="epub:type">
-            <list>
-                <ref name="types"/>
-                <value>covertitle</value>
-                <ref name="types"/>
-            </list>
-        </attribute>
-        <ref name="attrs.notype"/>
-    </define>
+    <!-- =========== Headings  ============ -->
     
     <define name="hx.content">
         <ref name="attlist.hx"/>
@@ -2576,39 +2346,6 @@
     </define>
     <define name="attlist.hx" combine="interleave">
         <ref name="attrs"/>
-    </define>
-    
-    <!--
-    Use: bridgehead is a free-floating heading that is not associated with the
-    hierarchical structure of a document. It may occur only subsidiary to one
-    of the hierarchic elements. <h1> ... <h6> are
-    restricted to one occurrence per level. bridgehead has no such restriction, but should be used
-    only when it is clear that none of the structural headings is appropriate.
-  -->
-    <define name="bridgehead">
-        <element name="p">
-            <ref name="attlist.bridgehead"/>
-            <zeroOrMore>
-                <ref name="inline"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
-            </zeroOrMore>
-        </element>
-    </define>
-    <define name="attlist.bridgehead" combine="interleave">
-        <attribute name="epub:type">
-            <list>
-                <ref name="types"/>
-                <value>bridgehead</value>
-                <ref name="types"/>
-            </list>
-        </attribute>
-        <attribute name="class">
-            <list>
-                <ref name="classes"/>
-                <value>bridgehead</value>
-                <ref name="classes"/>
-            </list>
-        </attribute>
-        <ref name="attrs.base"/>
     </define>
     
     <!--
@@ -2668,12 +2405,9 @@
     <define name="blockquote">
         <element name="blockquote">
             <ref name="attlist.blockquote"/>
-            <zeroOrMore>
-                <choice>
-                    <ref name="pagebreak.block"/> <!-- div -->
-                    <ref name="block"/> <!-- p, ol, ul, dl, div, blockquote, img, figure, table, address, span, aside, section -->
-                </choice>
-            </zeroOrMore>
+            <oneOrMore>
+                <ref name="block"/>
+            </oneOrMore>
         </element>
     </define>
     <!--
@@ -2748,10 +2482,7 @@
     <define name="dd">
         <element name="dd">
             <ref name="attlist.dd"/>
-            <ref name="flow"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, figure, br, q, sub, sup, span, bdo, p, ol, ul, dl, div, blockquote, table, address, section, (text) -->
-            <optional>
-                <ref name="pagebreak.inline"/> <!-- span -->
-            </optional>
+            <ref name="flow"/>
         </element>
     </define>
     <define name="attlist.dd" combine="interleave">
@@ -2863,7 +2594,7 @@
     <define name="li">
         <element name="li">
             <ref name="attlist.li"/>
-            <ref name="flowlic"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, figure, br, q, sub, sup, span, bdo, p, ol, ul, dl, div, blockquote, table, address, section, (text) -->
+            <ref name="flowlic"/>
         </element>
     </define>
     <define name="attlist.li" combine="interleave">
@@ -3024,7 +2755,7 @@
                     <ref name="Text"/>
                 </element>
             </optional>
-            <ref name="flownotable"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, figure, br, q, sub, sup, span, bdo, p, ol, ul, dl, div, blockquote, address, section (text) -->
+            <ref name="flow"/>
         </element>
     </define>
     
@@ -3167,7 +2898,7 @@
     <define name="th">
         <element name="th">
             <ref name="attlist.th"/>
-            <ref name="flowtd"/> <!-- em, strong, dfn, code, samp, kbd, time, abbr, a, img, figure, br, q, sub, sup, span, bdo, p, ol, ul, dl, div, blockquote, table, address, section, (text) -->
+            <ref name="flow"/>
         </element>
     </define>
     <!--
@@ -3223,7 +2954,7 @@
     <define name="td">
         <element name="td">
             <ref name="attlist.td"/>
-            <ref name="flowtd"/> <!-- em, strong, dfn, code, samp, kbd, time, abbr, a, img, figure, br, q, sub, sup, span, bdo, p, ol, ul, dl, div, blockquote, table, address, section, (text) -->
+            <ref name="flow"/>
         </element>
     </define>
     <!--
@@ -3638,14 +3369,12 @@
                 <value>asciimath</value>
                 <value>bdo</value>
                 <value>box</value>
-                <value>bridgehead</value>
                 <value>byline</value>
                 <value>cite</value>
                 <value>colophon</value>
                 <value>cover</value>
                 <value>dateline</value>
                 <value>definition</value>
-                <value>docauthor</value>
                 <value>emptyline</value>
                 <value>exercisenumber</value>
                 <value>exercisepart</value>

@@ -369,7 +369,7 @@
     <pattern id="nlbpub_128_b">
         <rule context="html:html/html:head">
             <assert test="count(html:meta[@name='nlb:guidelines'])=1">[nordic128b] nlb:guidelines metadata must occur exactly once.</assert>
-            <assert test="html:meta[@name='nlb:guidelines']/@content='2018-1'">[nordic128c] nlb:guidelines metadata value must be 2018-1.</assert>
+            <assert test="html:meta[@name='nlb:guidelines'][1]/matches(@content,'^20\d\d-\d+$')">[nordic128c] nlb:guidelines metadata value must match the pattern 20xx-x.</assert>
             <assert test="count(html:meta[@name='nlb:supplier'])=1">[nordic128d] nlb:supplier metadata must occur exactly once.</assert>
         </rule>
     </pattern>
@@ -438,7 +438,7 @@
                 select="concat('&lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&quot;',$a,'&quot;'),''),'&gt;')"/></assert>
         </rule>
     </pattern>
-    
+
     <!-- Rule 140: Cover must contain at least one part of the cover, at most one of each @class value and no other elements -->
     <!-- TODO: make sure that it is allowed to omit cover -->
     <pattern id="nlbpub_140">
@@ -453,7 +453,7 @@
             <report test="count(html:section[tokenize(@class,'\s+')='rightflap'])&gt;1">[nordic140] Too many sections with class="rightflap" in cover</report>
         </rule>
     </pattern>
-
+    
     <!-- Rule 142: Only tokenize(@class,' ')='page-special' in level1/@class='nonstandardpagination' -->
     <pattern id="nlbpub_142">
         <rule context="html:*[tokenize(@epub:type,'\s+')='pagebreak'][ancestor::html:section[@class='nonstandardpagination']]">
@@ -761,6 +761,8 @@
                     select="concat('&lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&quot;',$a,'&quot;'),''),'&gt;')"/></report>
             <report test="ancestor::html:tfoot">[nordic259] Pagebreaks can not occur within table footers (tfoot): <value-of
                     select="concat('&lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&quot;',$a,'&quot;'),''),'&gt;')"/></report>
+            <report test="ancestor::html:section[tokenize(@epub:type, '\s+') = 'cover']">[____] Pagebreaks can not occur within the cover section: <value-of
+                    select="concat('&lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&quot;',$a,'&quot;'),''),'&gt;')"/></report>
         </rule>
     </pattern>
 
@@ -827,7 +829,7 @@
     <pattern id="nlbpub_268">
         <rule context="html:h1 | html:h2 | html:h3 | html:h4 | html:h5 | html:h6">
             <let name="sectioning-element" value="ancestor::*[self::html:section or self::html:article or self::html:aside or self::html:nav or self::html:body][1]"/>
-            <let name="this-level" value="xs:integer(replace(name(),'.*(\d)$','$1')) + (if ((preceding-sibling::html:section[1]/following-sibling::html:div intersect preceding-sibling::html:div)[not(tokenize(@epub:type,'\s+') = 'pagebreak')][last()]/html:a/tokenize(@epub:type,'\s+') = 'z3998:continuation-of') then -1 else 0)"/>
+            <let name="this-level" value="xs:integer(replace(name(),'.*(\d)$','$1')) + (if ((preceding-sibling::html:section[1]/following-sibling::html:div intersect preceding-sibling::html:div)[not(tokenize(@epub:type,'\s+') = 'pagebreak')][last()]/html:a/tokenize(@epub:type,'\s+') = 'z3998:continuation-of') then -1 else 0)"/> <!-- TODO: bruker ikke continuation-of lenger -->
             <let name="child-sectioning-elements"
                 value="$sectioning-element//*[self::html:section or self::html:article or self::html:aside or self::html:nav or self::html:figure][ancestor::*[self::html:section or self::html:article or self::html:aside or self::html:nav or self::html:body][1] intersect $sectioning-element]"/>
             <let name="child-sectioning-element-with-wrong-level"
