@@ -1001,5 +1001,11 @@
             <assert test="xs:integer(substring-after(local-name(),'h')) = min((count(ancestor::html:section), 6))">[nlb_TODO] The current headline level must be one more than its parent level, unless the parent level is level 6. The first level must be level 1.</assert>
         </rule>
     </pattern>
+    
+    <pattern id="nlb_TODO2">
+        <rule context="html:li[@value]">
+            <assert test="parent::html:ol">[nlb_TODO] The value attribute on li elements must only be used in ordered lists (&lt;ol&gt;).</assert>
+        </rule>
+    </pattern>
 
 </schema>
