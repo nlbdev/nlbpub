@@ -54,28 +54,21 @@
     
     <define name="block">
         <choice>
-            <ref name="blocknoimggroupnotable"/>
             <ref name="img"/> <!-- img -->
             <ref name="figure.imggroup"/> <!-- figure -->
             <ref name="table"/> <!-- table -->
-        </choice>
-    </define>
-    
-    <define name="blocknoimggroupnotable">
-        <choice>
             <ref name="pagebreak.block"/> <!-- div -->
             <ref name="hr"/>
             <ref name="p"/> <!-- p, ul, ol, dl, span -->
             <ref name="pre"/> <!-- pre -->
             <ref name="list"/> <!-- ol, ul -->
-            <!-- TODO: vi fortsetter nedover her neste gang -->
             <ref name="dl"/> <!-- dl, span -->
             <ref name="div"/> <!-- div -->
             <ref name="blockquote"/> <!-- blockquote -->
             <ref name="poem"/> <!-- section -->
             <ref name="linegroup"/> <!-- section, div -->
-            <ref name="byline"/> <!-- span -->
-            <ref name="dateline"/> <!-- span -->
+            <ref name="byline"/> <!-- p -->
+            <ref name="dateline"/> <!-- p -->
             <ref name="epigraph"/> <!-- p -->
             <ref name="address"/> <!-- address -->
             <ref name="line"/> <!-- p -->
@@ -839,18 +832,6 @@
             <ref name="acronym"/> <!-- abbr -->
         </choice>
     </define>
-    <define name="phrasenodfn">
-        <choice>
-            <ref name="em"/> <!-- em -->
-            <ref name="strong"/> <!-- strong -->
-            <ref name="code"/> <!-- code -->
-            <ref name="samp"/> <!-- samp -->
-            <ref name="kbd"/> <!-- kbd -->
-            <ref name="cite"/> <!-- span -->
-            <ref name="abbr"/> <!-- abbr -->
-            <ref name="acronym"/> <!-- abbr -->
-        </choice>
-    </define>
     <!-- inline text elements -->
     
     <define name="special">
@@ -868,36 +849,19 @@
     </define>
     <!-- special inline text elements -->
     
-    <define name="specialnoa">
-        <choice>
-            <ref name="img"/> <!-- img -->
-            <!-- STRICT NOTE: figure (html: imggroup) is not allowed as "phrasing content" in HTML -->
-            <ref name="br"/> <!-- br -->
-            <ref name="q"/> <!-- q -->
-            <ref name="sub"/> <!-- sub -->
-            <ref name="sup"/> <!-- sup -->
-            <ref name="span"/> <!-- span -->
-            <ref name="bdo"/> <!-- bdo -->
-        </choice>
-    </define>
-    <!-- specialnoa inline text elements for anchor <a> -->
-    
     <!-- =========================== Inline Entities =========================== -->
     
+    <!-- TODO: fortsett her neste gang (se over inline-ting) -->
+    
     <define name="htmlinline">
-        <choice>
-            <ref name="htmlinlinenoa"/>
-            <ref name="annoref"/> <!-- a -->
-            <ref name="noteref"/> <!-- a -->
-        </choice>
-    </define>
-    <define name="htmlinlinenoa">
         <choice>
             <ref name="sent"/> <!-- span -->
             <ref name="w"/> <!-- span -->
             <ref name="pagebreak.inline"/> <!-- span -->
             <!-- STRICT NOTE: The DTBook element "prodnote" is mapped to "aside" in HTML, which is not allowed as HTML "phrasing content". This means that prodnotes must not be allowed to be placed as inline content in DTBook. -->
             <!-- STRICT NOTE: The DTBook elements "annoref" and "noteref" is mapped to "a" in HTML. In HTML, "a" cannot have "a" descendants which means html:annorefs and html:noterefs must be disallowed inside html:a elements. -->
+            <ref name="annoref"/> <!-- a -->
+            <ref name="noteref"/> <!-- a -->
         </choice>
     </define>
     <!-- html added inline text elements -->
@@ -911,24 +875,6 @@
         </choice>
     </define>
     <!-- inline text elements -->
-    
-    <define name="inlinenoa">
-        <choice>
-            <text/>
-            <ref name="phrase"/> <!-- em, strong, dfn, code, samp, kbd, span, abbr -->
-            <ref name="specialnoa"/> <!-- img, br, q, sub, sup, span, bdo -->
-            <ref name="htmlinlinenoa"/> <!-- span -->
-        </choice>
-    </define>
-    <define name="inlinenodfn">
-        <choice>
-            <text/>
-            <ref name="phrasenodfn"/> <!-- em, strong, code, samp, kbd, span, abbr -->
-            <ref name="special"/> <!-- a, img, br, q, sub, sup, span, bdo -->
-            <ref name="htmlinlinenoa"/> <!-- span -->
-        </choice>
-    </define>
-    <!-- inlinenoa excludes nested <a> -->
     
     <define name="inlines">
         <choice>
@@ -1034,17 +980,35 @@
     conjunction with linenum in documents with numbered lines.
   -->
     <define name="line">
-        <element name="p">
-            <!-- HTML content model: (a | abbr | audio | b | bdi | bdo | br | button | canvas | cite | code | data | datalist | del | dfn | em | embed | i | iframe | img | input | ins | kbd | keygen | label | link | map | mark | math | meta | meter | noscript | object | output | progress | q | ruby | s | samp | script | select | small | span | strong | sub | sup | svg | template | textarea | time | u | var | video | wbr | (text))* -->
-            <!-- Strict content model: (em | strong | dfn | code | samp | kbd | abbr | a | img | br | q | sub | sup | span | bdo | (text))* -->
-            <ref name="attlist.line"/>
-            <optional>
-                <ref name="linenum"/> <!-- span -->
-            </optional>
-            <zeroOrMore>
+        <choice>
+            <element name="p">
+                <ref name="line.content"/>
+            </element>
+            <element name="blockquote">
+                <optional>
+                    <attribute name="cite">
+                        <ref name="URI"/>
+                    </attribute>
+                </optional>
+                <ref name="line.content"/>
+            </element>
+            <element name="pre">
+                <ref name="line.content"/>
+            </element>
+        </choice>
+    </define>
+    <define name="line.content">
+        <ref name="attlist.line"/>
+        <optional>
+            <ref name="linenum"/> <!-- span -->
+        </optional>
+        <zeroOrMore>
+            <choice>
                 <ref name="inline"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
-            </zeroOrMore>
-        </element>
+                <ref name="noteref"/> <!-- a -->
+                <ref name="annoref"/> <!-- a -->
+            </choice>
+        </zeroOrMore>
     </define>
     <define name="attlist.line" combine="interleave">
         <attribute name="class">
@@ -1086,12 +1050,12 @@
             <!-- Strict content model: (p | em | strong | dfn | code | samp | kbd | abbr | a | img | br | q | sub | sup | span | bdo | (text))* -->
             <ref name="attlist.address"/>
             <choice>
-                <zeroOrMore>
+                <oneOrMore>
                     <ref name="inline"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
-                </zeroOrMore>
-                <zeroOrMore>
+                </oneOrMore>
+                <oneOrMore>
                     <ref name="line"/> <!-- p -->
-                </zeroOrMore>
+                </oneOrMore>
             </choice>
         </element>
     </define>
@@ -1122,52 +1086,6 @@
     </define>
     
     <!-- === Block Elements: Title, Author, Prodnote, Sidebar === -->
-    
-    <define name="inlinetitle">
-        <element name="span">
-            <ref name="title.content"/>
-        </element>
-    </define>
-    <define name="title">
-        <!-- HTML content model: (a | abbr | audio | b | bdi | bdo | br | button | canvas | cite | code | data | datalist | del | dfn | em | embed | i | iframe | img | input | ins | kbd | keygen | label | link | map | mark | math | meta | meter | noscript | object | output | progress | q | ruby | s | samp | script | select | small | span | strong | sub | sup | svg | template | textarea | time | u | var | video | wbr | (text))* -->
-        <!-- Strict content model: (em | strong | dfn | code | samp | kbd | abbr | a | img | br | q | sub | sup | span | bdo | (text))* -->
-        <choice>
-            <element name="h1">
-                <ref name="title.content"/>
-            </element>
-            <element name="h2">
-                <ref name="title.content"/>
-            </element>
-            <element name="h3">
-                <ref name="title.content"/>
-            </element>
-            <element name="h4">
-                <ref name="title.content"/>
-            </element>
-            <element name="h5">
-                <ref name="title.content"/>
-            </element>
-            <element name="h6">
-                <ref name="title.content"/>
-            </element>
-        </choice>
-    </define>
-    <define name="title.content">
-        <ref name="attlist.title"/>
-        <zeroOrMore>
-            <ref name="inline"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
-        </zeroOrMore>
-    </define>
-    <define name="attlist.title" combine="interleave">
-        <attribute name="class">
-            <list>
-                <ref name="classes"/>
-                <value>title</value>
-                <ref name="classes"/>
-            </list>
-        </attribute>
-        <ref name="attrs.noclass"/>
-    </define>
     
     <!-- Use: author identifies the writer of a work. -->
     <define name="author.inline">
@@ -1224,14 +1142,7 @@
                 <ref name="types"/>
             </list>
         </attribute>
-        <attribute name="class">
-            <list>
-                <ref name="classes"/>
-                <value>prodnote</value>
-                <ref name="classes"/>
-            </list>
-        </attribute>
-        <ref name="attrsrqd.base"/> <!-- attrsrqd instead of attrs because all sectioning elements should have id attributes -->
+        <ref name="attrsrqd.notype"/> <!-- attrsrqd instead of attrs because all sectioning elements should have id attributes -->
         <!--
             @imgref removed. The relationship is stored in img/@longdesc.
             NOTE: an alternative would be to use aria-describedat, linking from the image to the prodnote:
@@ -1278,14 +1189,7 @@
                 <ref name="types"/>
             </list>
         </attribute>
-        <attribute name="class">
-            <list>
-                <ref name="classes"/>
-                <value>sidebar</value>
-                <ref name="classes"/>
-            </list>
-        </attribute>
-        <ref name="attrsrqd.base"/> <!-- attrsrqd instead of attrs because all sectioning elements should have id attributes -->
+        <ref name="attrsrqd.notype"/> <!-- attrsrqd instead of attrs because all sectioning elements should have id attributes -->
     </define>
     
     <!--
@@ -1308,14 +1212,7 @@
                 <ref name="types"/>
             </list>
         </attribute>
-        <attribute name="class">
-            <list>
-                <ref name="classes"/>
-                <value>notebody</value>
-                <ref name="classes"/>
-            </list>
-        </attribute>
-        <ref name="attrsrqd.base"/> <!-- attrsrqd instead of attrs because all sectioning elements should have id attributes -->
+        <ref name="attrsrqd.notype"/> <!-- attrsrqd instead of attrs because all sectioning elements should have id attributes -->
     </define>
     
     <!--
@@ -1341,14 +1238,7 @@
                 <ref name="types"/>
             </list>
         </attribute>
-        <attribute name="class">
-            <list>
-                <ref name="classes"/>
-                <value>annotation</value>
-                <ref name="classes"/>
-            </list>
-        </attribute>
-        <ref name="attrsrqd.base"/> <!-- attrsrqd instead of attrs because all sectioning elements should have id attributes -->
+        <ref name="attrsrqd.notype"/> <!-- attrsrqd instead of attrs because all sectioning elements should have id attributes -->
     </define>
     
     <!-- ====================== Byline, Epigraph, Dateline ===================== -->
@@ -1383,7 +1273,7 @@
     to a work. 
   -->
     <define name="byline">
-        <element name="span">
+        <element name="p">
             <!-- HTML content model: (a | abbr | audio | b | bdi | bdo | br | button | canvas | cite | code | data | datalist | del | dfn | em | embed | i | iframe | img | input | ins | kbd | keygen | label | link | map | mark | math | meta | meter | noscript | object | output | progress | q | ruby | s | samp | script | select | small | span | strong | sub | sup | svg | template | textarea | time | u | var | video | wbr | (text))* -->
             <!-- Strict content model: (em | strong | dfn | code | samp | kbd | abbr | a | img | br | q | sub | sup | span | bdo | (text))* -->
             <ref name="attlist.byline"/>
@@ -1409,7 +1299,7 @@
   -->
     <!-- MM: 2005-04-22 dateline - changed ATTLIST to %attrs; -->
     <define name="dateline">
-        <element name="span">
+        <element name="p">
             <!-- HTML content model: (a | abbr | audio | b | bdi | bdo | br | button | canvas | cite | code | data | datalist | del | dfn | em | embed | i | iframe | img | input | ins | kbd | keygen | label | link | map | mark | math | meta | meter | noscript | object | output | progress | q | ruby | s | samp | script | select | small | span | strong | sub | sup | svg | template | textarea | time | u | var | video | wbr | (text))* -->
             <!-- Strict content model: (em | strong | dfn | code | samp | kbd | abbr | a | img | br | q | sub | sup | span | bdo | (text))* -->
             <ref name="attlist.dateline"/>
@@ -1436,12 +1326,12 @@
         <!-- linegroups with headlines must be section elements; otherwise they must be div elements -->
         <choice>
             <element name="div">
-                <ref name="attrs.base"/>
+                <ref name="attrs.notype"/>
                 <ref name="attlist.linegroup"/>
                 <ref name="linegroup.common"/>
             </element>
             <element name="section">
-                <ref name="attrsrqd.base"/> <!-- attrsrqd instead of attrs because all sectioning elements should have id attributes -->
+                <ref name="attrsrqd.notype"/> <!-- attrsrqd instead of attrs because all sectioning elements should have id attributes -->
                 <ref name="attlist.linegroup"/>
                 <ref name="linegroup.common"/>
                 <ref name="hd"/> <!-- h1, h2, h3, h4, h5, h6 -->
@@ -1454,36 +1344,15 @@
         <!-- Strict content model: (h1 | span | p | section | aside | a | ul | ol | dl | blockquote | img | figure)* -->
         <zeroOrMore>
             <choice>
-                <ref name="dateline"/> <!-- span -->
-                <ref name="epigraph"/> <!-- p -->
-                <ref name="byline"/> <!-- span -->
-                <ref name="linegroup"/> <!-- section, div -->
                 <ref name="line"/> <!-- p -->
                 <ref name="pagebreak.block"/> <!-- div -->
-                <ref name="prodnote"/> <!-- aside -->
-                <ref name="noteref"/> <!-- a -->
-                <ref name="annoref"/> <!-- a -->
-                <ref name="note"/> <!-- aside -->
-                <ref name="annotation"/> <!-- aside -->
-                <ref name="hr"/>
-                <ref name="p"/> <!-- p, ul, ol, dl, span -->
-                <ref name="list"/> <!-- ol, ul -->
-                <ref name="dl"/> <!-- dl, span -->
-                <ref name="pre"/> <!-- pre -->
-                <ref name="blockquote"/> <!-- blockquote -->
                 <ref name="img"/> <!-- img -->
                 <ref name="figure.imggroup"/> <!-- figure -->
+                <ref name="annotation"/> <!-- aside -->
             </choice>
         </zeroOrMore>
     </define>
     <define name="attlist.linegroup" combine="interleave">
-        <attribute name="class">
-            <list>
-                <ref name="classes"/>
-                <value>linegroup</value>
-                <ref name="classes"/>
-            </list>
-        </attribute>
         <optional>
             <attribute name="epub:type">
                 <list>
@@ -1503,17 +1372,45 @@
             <!-- HTML content model: (a | abbr | address | article | aside | audio | b | bdi | bdo | blockquote | br | button | canvas | cite | code | data | datalist | del | details | dfn | dialog | div | dl | em | embed | fieldset | figure | footer | form | h1 | h2 | h3 | h4 | h5 | h6 | header | hr | i | iframe | img | input | ins | kbd | keygen | label | link | main | map | mark | math | menu | meta | meter | nav | noscript | object | ol | output | p | pre | progress | q | ruby | s | samp | script | section | select | small | span | strong | style | sub | sup | svg | table | template | textarea | time | u | ul | var | video | wbr | (text))* -->
             <!-- Strict content model: (h1 | span | p | section | img | figure)* -->
             <ref name="attlist.poem"/>
+            
+            <optional>
+                <ref name="hd"/> <!-- h1, h2, h3, h4, h5, h6 -->
+            </optional>
+            <zeroOrMore>
+                <ref name="author.block"/> <!-- p -->
+            </zeroOrMore>
+            
             <zeroOrMore>
                 <choice>
-                    <ref name="title"/> <!-- h1, h2, h3, h4, h5, h6 -->
-                    <ref name="author.block"/> <!-- p -->
-                    <ref name="hd"/> <!-- h1, h2, h3, h4, h5, h6 -->
-                    <ref name="dateline"/> <!-- span -->
                     <ref name="epigraph"/> <!-- p -->
-                    <ref name="byline"/> <!-- span -->
+                    <ref name="byline"/> <!-- p -->
+                    <ref name="dateline"/> <!-- p -->
+                    <ref name="img"/> <!-- img -->
+                    <ref name="figure.imggroup"/> <!-- figure -->
+                    <ref name="sidebar"/> <!-- section -->
+                </choice>
+            </zeroOrMore>
+            
+            <choice>
+                <oneOrMore>
                     <ref name="linegroup"/> <!-- section, div -->
+                    <zeroOrMore>
+                        <ref name="pagebreak.block"/> <!-- div -->
+                    </zeroOrMore>
+                </oneOrMore>
+                <oneOrMore>
                     <ref name="line"/> <!-- p -->
-                    <ref name="pagebreak.block"/> <!-- div -->
+                    <zeroOrMore>
+                        <ref name="pagebreak.block"/> <!-- div -->
+                    </zeroOrMore>
+                </oneOrMore>
+            </choice>
+            
+            <zeroOrMore>
+                <choice>
+                    <ref name="epigraph"/> <!-- p -->
+                    <ref name="byline"/> <!-- p -->
+                    <ref name="dateline"/> <!-- p -->
                     <ref name="img"/> <!-- img -->
                     <ref name="figure.imggroup"/> <!-- figure -->
                     <ref name="sidebar"/> <!-- section -->
@@ -1525,22 +1422,11 @@
         <attribute name="epub:type">
             <list>
                 <ref name="types"/>
-                <choice>
-                    <!-- By mistake, z:3998:verse is allowed on the poem in guidelines version 2015-1, so for now we'll allow suppliers to either follow the guidlines (z3998:verse) or do it correctly (z3998:poem) -->
-                    <value>z3998:verse</value>
-                    <value>z3998:poem</value>
-                </choice>
+                <value>z3998:poem</value>
                 <ref name="types"/>
             </list>
         </attribute>
-        <attribute name="class">
-            <list>
-                <ref name="classes"/>
-                <value>poem</value>
-                <ref name="classes"/>
-            </list>
-        </attribute>
-        <ref name="attrsrqd.base"/> <!-- attrsrqd instead of attrs because all sectioning elements should have id attributes -->
+        <ref name="attrsrqd.notype"/> <!-- attrsrqd instead of attrs because all sectioning elements should have id attributes -->
     </define>
     
     <!-- ========================= The Anchor Element ========================== -->
@@ -1555,7 +1441,8 @@
             <!-- Strict content model: (em | strong | dfn | code | samp | kbd | abbr | img | br | q | sub | sup | span | bdo | (text))* -->
             <ref name="attlist.a"/>
             <zeroOrMore>
-                <ref name="inlinenoa"/> <!-- em, strong, dfn, code, samp, kbd, abbr, img, br, q, sub, sup, span, bdo, (text) -->
+                <ref name="inline"/> <!-- em, strong, dfn, code, samp, kbd, abbr, img, br, q, sub, sup, span, bdo, (text) -->
+                <!-- TODO: lage Schematron-regel som forbyr nøstede a-elementer. -->
             </zeroOrMore>
         </element>
     </define>
@@ -1669,7 +1556,8 @@
         <element name="dfn">
             <ref name="attlist.dfn"/>
             <zeroOrMore>
-                <ref name="inlinenodfn"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
+                <ref name="inline"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
+                <!-- TODO: lage Schematron-regel som forbyr nøstede dfn -->
                 <!-- STRICT NOTE: HTML5 disallows dfn descendants -->
             </zeroOrMore>
         </element>
@@ -1743,7 +1631,6 @@
             <zeroOrMore>
                 <choice>
                     <ref name="inline"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
-                    <ref name="inlinetitle"/> <!-- span -->
                     <ref name="author.inline"/> <!-- span -->
                 </choice>
             </zeroOrMore>
@@ -2467,10 +2354,12 @@
         <element name="dl">
             <ref name="attlist.dl"/>
             <oneOrMore>
-                <choice>
+                <oneOrMore>
                     <ref name="dt"/> <!-- dt -->
+                </oneOrMore>
+                <oneOrMore>
                     <ref name="dd"/> <!-- dd -->
-                </choice>
+                </oneOrMore>
             </oneOrMore>
         </element>
     </define>
