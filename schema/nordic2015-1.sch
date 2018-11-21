@@ -293,7 +293,7 @@
 
     <!-- Rule 96: no nested prodnotes or image groups -->
     <pattern id="nlbpub_96_a">
-        <rule context="html:*[tokenize(@epub:type,' ')='z3998:production']">
+        <rule context="html:*[tokenize(@epub:type,'\s+')='z3998:production']">
             <report test="ancestor::html:*[tokenize(@epub:type,'\s+')='z3998:production']">[nordic96a] nested production notes are not allowed: <value-of
                     select="concat('&lt;',name(),string-join(for $a in (@*) return concat(' ',$a/name(),'=&quot;',$a,'&quot;'),''),'&gt;')"/></report>        </rule>
     </pattern>
@@ -1005,6 +1005,19 @@
     <pattern id="nlb_TODO2">
         <rule context="html:li[@value]">
             <assert test="parent::html:ol">[nlb_TODO] The value attribute on li elements must only be used in ordered lists (&lt;ol&gt;).</assert>
+        </rule>
+    </pattern>
+    
+    <pattern id="nlb_TODO3">
+        <rule context="html:*[tokenize(@epub:type,'\s+')='z3998:word']">
+            <report test="ancestor::html:*[tokenize(@epub:type,'\s+')='z3998:word']">[nlb_TODO] Words cannot be nested.</report>
+        </rule>
+    </pattern>
+    
+    <pattern id="nlb_TODO4">
+        <rule context="html:*[tokenize(@epub:type,'\s+')='z3998:sentence']">
+            <report test="ancestor::html:*[tokenize(@epub:type,'\s+')='z3998:sentence']">[nlb_TODO] Sentences cannot be nested.</report>
+            <report test="ancestor::html:*[tokenize(@epub:type,'\s+')='z3998:word']">[nlb_TODO] Sentences cannot be inside words.</report>
         </rule>
     </pattern>
 

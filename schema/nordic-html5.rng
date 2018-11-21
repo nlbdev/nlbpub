@@ -817,10 +817,11 @@
         <ref name="attrsrqd.notype"/> <!-- attrsrqd instead of attrs because all sectioning elements should have id attributes -->
     </define>
     
-    <!-- ============================= Text Markup ============================= -->
+    <!-- =========================== Inline Entities =========================== -->
     
-    <define name="phrase">
+    <define name="inline">
         <choice>
+            <text/>
             <ref name="em"/> <!-- em -->
             <ref name="strong"/> <!-- strong -->
             <ref name="dfn"/> <!-- dfn -->
@@ -830,12 +831,6 @@
             <ref name="cite"/> <!-- span -->
             <ref name="abbr"/> <!-- abbr -->
             <ref name="acronym"/> <!-- abbr -->
-        </choice>
-    </define>
-    <!-- inline text elements -->
-    
-    <define name="special">
-        <choice>
             <ref name="a"/> <!-- a -->
             <ref name="img"/> <!-- img -->
             <!-- STRICT NOTE: figure (i.e. images) is not allowed as "phrasing content" in HTML -->
@@ -845,16 +840,6 @@
             <ref name="sup"/> <!-- sup -->
             <ref name="span"/> <!-- span -->
             <ref name="bdo"/> <!-- bdo -->
-        </choice>
-    </define>
-    <!-- special inline text elements -->
-    
-    <!-- =========================== Inline Entities =========================== -->
-    
-    <!-- TODO: fortsett her neste gang (se over inline-ting) -->
-    
-    <define name="htmlinline">
-        <choice>
             <ref name="sent"/> <!-- span -->
             <ref name="w"/> <!-- span -->
             <ref name="pagebreak.inline"/> <!-- span -->
@@ -864,67 +849,7 @@
             <ref name="noteref"/> <!-- a -->
         </choice>
     </define>
-    <!-- html added inline text elements -->
-    
-    <define name="inline">
-        <choice>
-            <text/>
-            <ref name="phrase"/> <!-- em, strong, dfn, code, samp, kbd, span, abbr -->
-            <ref name="special"/> <!-- a, img, br, q, sub, sup, span, bdo -->
-            <ref name="htmlinline"/> <!-- span, a -->
-        </choice>
-    </define>
     <!-- inline text elements -->
-    
-    <define name="inlines">
-        <choice>
-            <text/>
-            <ref name="phrase"/> <!-- em, strong, dfn, code, samp, kbd, span, abbr -->
-            <ref name="special"/> <!-- a, img, br, q, sub, sup, span, bdo -->
-            <ref name="pagebreak.inline"/> <!-- span -->
-            <ref name="w"/> <!-- span -->
-            <ref name="prodnote"/> <!-- aside -->
-            <ref name="annoref"/> <!-- a -->
-            <ref name="noteref"/> <!-- a -->
-        </choice>
-    </define>
-    <!-- inlines excludes direct nesting of sentences (z3998:sentence) -->
-    
-    <define name="inlinew">
-        <choice>
-            <text/>
-            <ref name="phrase"/> <!-- em, strong, dfn, code, samp, kbd, span, abbr -->
-            <ref name="special"/> <!-- a, img, br, q, sub, sup, span, bdo -->
-        </choice>
-    </define>
-    <!-- inlinew for word z3998:word excludes any of the "htmlinline" content -->
-    
-    <define name="inlinenopagebreak">
-        <choice>
-            <text/>
-            <ref name="phrase"/> <!-- em, strong, dfn, code, samp, kbd, span, abbr -->
-            <ref name="special"/> <!-- a, img, br, q, sub, sup, span, bdo -->
-            <ref name="sent"/> <!-- span -->
-            <ref name="w"/> <!-- span -->
-            <ref name="annoref"/> <!-- a -->
-            <ref name="noteref"/> <!-- a -->
-        </choice>
-    </define>
-    <!-- inlinenopagebreak excludes pagebreaks directly inside <table>, <th> and <td>. -->
-    
-    <define name="inlinenoprodnote">
-        <choice>
-            <text/>
-            <ref name="phrase"/> <!-- em, strong, dfn, code, samp, kbd, span, abbr -->
-            <ref name="special"/> <!-- a, img, br, q, sub, sup, span, bdo -->
-            <ref name="sent"/> <!-- span -->
-            <ref name="w"/> <!-- span -->
-            <ref name="pagebreak.inline"/> <!-- span -->
-            <ref name="annoref"/> <!-- a -->
-            <ref name="noteref"/> <!-- a -->
-        </choice>
-    </define>
-    <!-- inlinenoprodnote excludes z3998:production, used so that they don't nest -->
     
     <!-- =================== Flow (Block or Inline) Entities =================== -->
     
@@ -932,28 +857,34 @@
         <!-- TODO: lage regler i schematron for hvor table og imggroup bør forbys, etter refaktorering er det nå tillatt overalt hvor det er flow -->
         <choice>
             <oneOrMore>
-                <ref name="inlinenoprodnote"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
+                <ref name="inline"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
             </oneOrMore>
             <oneOrMore>
                 <ref name="block"/>
             </oneOrMore>
         </choice>
     </define>
-    <!-- flow elements add inlinenoprodnote to block -->
+    <!-- flow elements add inline to block -->
     
     <define name="flowlic">
         <choice>
             <oneOrMore>
-                <choice>
-                    <ref name="inlinenoprodnote"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
-                    <ref name="lic"/> <!-- span -->
-                    <ref name="list"/> <!-- ol, ul -->
-                </choice>
+                <ref name="inline"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
             </oneOrMore>
             <oneOrMore>
                 <ref name="block"/>
             </oneOrMore>
+            <oneOrMore>
+                <ref name="lic"/> <!-- span -->
+            </oneOrMore>
         </choice>
+        
+        <optional>
+            <ref name="list"/> <!-- ol, ul -->
+            <zeroOrMore>
+                <ref name="block"/>
+            </zeroOrMore>
+        </optional>
     </define>
     
     <!-- ========= Br, Line, Linenum, Address, and Div Content Models ========== -->
@@ -1476,14 +1407,14 @@
   -->
     <define name="attlist.a" combine="interleave">
         <ref name="attrs"/>
+        
+        <attribute name="href">
+            <ref name="URI"/>
+        </attribute>
+        
         <optional>
             <attribute name="type">
                 <ref name="ContentType"/>
-            </attribute>
-        </optional>
-        <optional>
-            <attribute name="href">
-                <ref name="URI"/>
             </attribute>
         </optional>
         <optional>
@@ -1509,6 +1440,16 @@
         <optional>
             <attribute name="target">
                 <value>_blank</value>
+            </attribute>
+        </optional>
+        <optional>
+            <attribute name="download">
+                <text/>
+            </attribute>
+        </optional>
+        <optional>
+            <attribute name="ping">
+                <text/>
             </attribute>
         </optional>
     </define>
@@ -1773,18 +1714,27 @@
         </element>
     </define>
     <define name="attlist.bdo" combine="interleave">
-        <ref name="coreattrs"/>
-        <ref name="i18n.optional"/>
+        <ref name="attrs"/>
     </define>
     
     <!-- =================== Inline Sentence and Word =================== -->
+    
+    <!-- TODO: vi fortsetter her neste gang med å se gjennom inline-ting -->
     
     <!-- Use: marks a sentence. -->
     <define name="sent">
         <element name="span">
             <ref name="attlist.sent"/>
             <zeroOrMore>
-                <ref name="inlines"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
+                <choice>
+                    <text/>
+                    <ref name="inline"/>
+                    <ref name="pagebreak.inline"/> <!-- span -->
+                    <ref name="w"/> <!-- span -->
+                    <ref name="prodnote"/> <!-- aside -->
+                    <ref name="annoref"/> <!-- a -->
+                    <ref name="noteref"/> <!-- a -->
+                </choice>
             </zeroOrMore>
         </element>
     </define>
@@ -1804,7 +1754,10 @@
         <element name="span">
             <ref name="attlist.w"/>
             <zeroOrMore>
-                <ref name="inlinew"/> <!-- em, strong, dfn, code, samp, kbd, abbr, a, img, br, q, sub, sup, span, bdo, (text) -->
+                <choice>
+                    <text/>
+                    <ref name="inline"/>
+                </choice>
             </zeroOrMore>
         </element>
     </define>
